@@ -1,0 +1,42 @@
+%YAML:1.0
+# SPDX-License-Identifier: GPL-3.0-or-later
+# LiDAR-Camera Calibration Parameters for LiDAR-Camera Calibration Validator
+#
+# This file contains the calibration parameters for LiDAR-Camera sensor fusion
+# K_0: Camera intrinsic matrix (3x3)
+# C_0: Distortion coefficients (1x5 or 1x4)
+# E_0: Extrinsic transformation from LiDAR to Camera (4x4 homogeneous matrix)
+
+# 相机内参
+K_0: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [2629.3,   -5.2,   702.8,
+          0.0,    2626.1,   499.3,
+          0.0,       0.0,     1.0]
+
+# 相机畸变系数
+C_0: !!opencv-matrix
+   rows: 1
+   cols: 5
+   dt: d
+   data: [0.0228, 1.2328, -0.0013, 0.0071, -5.3877]
+
+# 外参: 雷达 -> 相机 (若是 相机 -> 雷达，请务必求逆！！！)
+E_0: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: d
+   data: [ 0.999246968, -0.037858584,  0.008379772,  0.054859053,
+           0.008679872,  0.009370770, -0.998234848,  0.101863458,
+           0.037785264,  0.997554648,  0.009694082,  0.187560067,
+           0.0,          0.0,          0.0,          1.0]
+
+calibration_info:
+  date: "2025-09-12"
+  calibrator: "Yao Yuzhuo"
+  camera_model: "MindVision Camera"
+  lidar_model: "CH128X LiDAR"
+  calibration_method: "Target-based calibration"
+  description: "E_0 transforms points from LiDAR coordinate system to Camera coordinate system"

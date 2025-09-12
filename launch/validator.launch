@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="calibration_file" default="$(find lidar_cam_validator)/config/sample_calibration.yaml"/>
+    <arg name="image_topic" default="/image_raw"/>
+    <arg name="cloud_topic" default="/cloudpoints"/>
+    <arg name="gui" default="true"/>
+
+    <rosparam file="$(find lidar_cam_validator)/config/settings.yaml" command="load"/>
+
+    <node name="validator_node" pkg="lidar_cam_validator" type="validator_node" output="screen">
+        <param name="calibration_file" value="$(arg calibration_file)"/>
+        <param name="image_topic" value="$(arg image_topic)"/>
+        <param name="cloud_topic" value="$(arg cloud_topic)"/>
+    </node>
+
+    <node name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure"
+          if="$(arg gui)" launch-prefix="bash -c 'sleep 3; exec $0 $@'" respawn="false"/>
+
+</launch>

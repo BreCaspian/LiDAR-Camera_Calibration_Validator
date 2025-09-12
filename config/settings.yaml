@@ -1,0 +1,33 @@
+# LiDAR-Camera Calibration Validator - Configura YAML
+
+# 话题配置 - 请配置为自己 LiDAR 和 Camera 对应话题
+image_topic: "/image_raw"
+cloud_topic: "/cloudpoints"
+
+fused_topic: "/validator/fused_image"
+
+calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
+
+queue_size: 10
+target_fps: 10.0
+window_name: "LiDAR-Camera Calibration Validator"
+
+defaults:
+  point_size: 3
+  min_depth: 0.5
+  max_depth: 50.0
+  show_statistics: true
+  show_edge_overlay: false
+  show_depth_colorbar: true
+
+  enable_downsampling: false
+  max_points: 1000000
+
+  filter_by_distance: true
+  min_distance: 0.3
+  max_distance: 100.0
+
+  enable_metrics: true
+  edge_threshold: 50
+  edge_distance_threshold: 5.0
+  min_points_for_nmi: 100

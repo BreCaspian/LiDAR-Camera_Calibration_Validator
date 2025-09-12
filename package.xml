@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>lidar_cam_validator</name>
+  <version>3.1.0</version>
+  <description>
+    LiDAR-Camera Calibration Validation Tool
+    
+    A simple, decoupled ROS tool for validating LiDAR-camera calibration results
+    through real-time visualization and quantitative metrics evaluation.
+  </description>
+  
+  <maintainer email="yaoyuzhuo6@gmail.com">Yao Yuzhuo</maintainer>
+  <license>GPL-3.0-or-later</license>
+  <url type="website">https://github.com/BreCaspian/LiDAR-Camera_Calibration_Validator</url>
+  <url type="bugtracker">https://github.com/BreCaspian/LiDAR-Camera_Calibration_Validator/issues</url>
+  <url type="repository">https://github.com/BreCaspian/LiDAR-Camera_Calibration_Validator</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>image_geometry</build_depend>
+  
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>pcl_conversions</build_depend>
+  
+  <build_depend>message_filters</build_depend>
+  
+  <build_depend>dynamic_reconfigure</build_depend>
+  
+  <build_depend>eigen3</build_depend>
+  <build_depend>opencv</build_depend>
+  
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>image_transport</exec_depend>
+  <exec_depend>image_geometry</exec_depend>
+  <exec_depend>pcl_ros</exec_depend>
+  <exec_depend>pcl_conversions</exec_depend>
+  <exec_depend>message_filters</exec_depend>
+  <exec_depend>dynamic_reconfigure</exec_depend>
+  
+  <exec_depend>rqt_reconfigure</exec_depend>
+  <exec_depend>rqt_image_view</exec_depend>
+
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+  </export>
+</package>

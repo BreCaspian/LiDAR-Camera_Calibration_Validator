@@ -330,8 +330,8 @@ calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
 ### ROS话题输出
 - **`/validator/fused_image`**: 融合后的图像 (sensor_msgs/Image)
 - **`/validator/validation_info`**: 验证信息和统计数据
-- **`/validator/metrics`**: 定量评价指标
-- **`/validator/status`**: 系统运行状态
+- **`/validator_node/parameter_descriptions`**: 定量评价指标
+- **`/validator_node/parameter_updates`**: 系统运行状态
 
 ---
 

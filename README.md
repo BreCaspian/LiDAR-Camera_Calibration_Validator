@@ -404,6 +404,131 @@ lidar_cam_validator/
 ├── 📖 README.md                       # 项目说明文档
 └── 📜 CMakeLists.txt                 # CMake 构建配置文件
 ```
+---
+
+## 📐 数学原理 | Mathematical Foundations
+
+- 本节简述该工具相关数学原理，由于该工具侧重于实用，故只简单给出相关数学定义与数学表达，以便交流讨论
+> 个人简单定义从 LiDAR 点到图像像素的投影模型，以及用于验证标定质量的定量指标。符号与配置字段对应：  
+> `E_0` (外参, $T_{C\leftarrow L}$)、`K_0` (内参, K)、`C_0` (畸变, k1/k2/k3, p1/p2)。
+
+---
+
+### 1) 坐标系与外参 | Frames & Extrinsics
+
+- LiDAR 坐标系记为 **{L}**，相机坐标系记为 **{C}**。  
+- 外参矩阵（LiDAR → Camera）记为：
+
+```math
+\mathbf{T}_{C\leftarrow L}=
+\begin{bmatrix}
+\mathbf{R} & \mathbf{t}\\
+\mathbf{0}^\top & 1
+\end{bmatrix}
+\in SE(3),\quad \mathbf{R}\in SO(3),\ \mathbf{t}\in\mathbb{R}^3
+```
+
+* 将 LiDAR 点 \$\mathbf{x}\_L=(x\_L,y\_L,z\_L)^\top\$ 变换到相机坐标：
+
+```math
+\begin{bmatrix}\mathbf{x}_C\\1\end{bmatrix}
+=\mathbf{T}_{C\leftarrow L}\begin{bmatrix}\mathbf{x}_L\\1\end{bmatrix},
+\quad \mathbf{x}_C=(X,Y,Z)^\top
+```
+
+* **可见性约束**：仅当 \$Z>0\$（点在相机前方）时才继续投影。
+* 若配置给出的是 \$\mathbf{T}\_{L\leftarrow C}\$（Camera→LiDAR），须取逆：
+
+```math
+\mathbf{T}_{C\leftarrow L}=\left(\mathbf{T}_{L\leftarrow C}\right)^{-1}
+```
+
+---
+
+### 2) 针孔成像与畸变 | Pinhole Projection with Distortion
+
+**(2.1) 归一化针孔坐标**
+
+```math
+x_n=\frac{X}{Z},\qquad y_n=\frac{Y}{Z}
+```
+
+**(2.2) 透镜畸变（Brown–Conrady 模型）**
+令 \$r^2=x\_n^2+y\_n^2\$，径向系数 \$(k\_1,k\_2,k\_3)\$、切向系数 \$(p\_1,p\_2)\$：
+
+```math
+\begin{aligned}
+x_d &= x_n\!\left(1+k_1 r^2+k_2 r^4+k_3 r^6\right)
+      + 2p_1 x_n y_n + p_2\!\left(r^2+2x_n^2\right),\\
+y_d &= y_n\!\left(1+k_1 r^2+k_2 r^4+k_3 r^6\right)
+      + p_1\!\left(r^2+2y_n^2\right) + 2p_2 x_n y_n
+\end{aligned}
+```
+
+> 说明：上式为 **从理想归一化坐标到畸变归一化坐标** 的前向模型。
+
+**(2.3) 内参映射至像素坐标**
+设内参矩阵：
+
+```math
+\mathbf{K}=\begin{bmatrix}
+f_x & 0 & c_x\\
+0 & f_y & c_y\\
+0 & 0 & 1
+\end{bmatrix}
+```
+
+则像素坐标：
+
+```math
+u=f_x\,x_d + c_x,\qquad v=f_y\,y_d + c_y
+```
+
+**像素有效性**：要求 \$(u,v)\$ 落入图像分辨率范围内；可选 Z-buffer（较小 \$Z\$ 优先）以减少遮挡误差。
+
+---
+
+### 3) 定量指标 | Quantitative Metrics
+
+**(3.1) 边缘重合度（Edge Overlap Score）**
+
+* 用 Canny 得到二值边缘图 \$E\in{0,1}^{H\times W}\$，对其做欧氏距离变换得 \$D\in\mathbb{R}\_{\ge 0}^{H\times W}\$。
+* 设有效投影像素集合 \$\mathcal{P}={(u\_i,v\_i)}\_{i=1}^N\$，阈值 \$\tau\$（像素）：
+
+```math
+\mathrm{Overlap}=\frac{1}{N}\sum_{i=1}^{N}\mathbf{1}\!\left[D(v_i,u_i)\le \tau\right]
+```
+
+* **个人理解**：值越大对齐越好；\$\tau\$ 可取 2–5 像素（依分辨率/噪声而定）。
+
+**(3.2) 归一化互信息（Normalized Mutual Information, NMI）**
+
+* 取投影像素的灰度 \${I\_i}\$ 与对应深度 \${Z\_i}\$，离散化成联合直方图 \$p(I,Z)\$。
+* 熵与互信息：
+
+```math
+H(X)=-\sum_x p(x)\log p(x),\quad
+\mathrm{MI}(I,Z)=\sum_{i,z}p(i,z)\log\frac{p(i,z)}{p(i)\,p(z)}
+```
+
+* 一种常用的 NMI 定义：
+
+```math
+\mathrm{NMI}(I,Z)=\frac{H(I)+H(Z)}{H(I,Z)}
+```
+
+* **个人理解**：NMI 越高，灰度与几何在投影处的**结构性相关**越强，通常意味着外参更准确。
+  实践上对直方图 bin、对比度、采样比例敏感，建议多帧取均值或方差。
+
+---
+
+### 4) 数值注意事项 | Numerical Notes
+
+* **单位一致**：\$\mathbf{t}\$ 与点坐标单位必须一致（米）。
+* **远距退化**：场景多为远景时，\$(X/Z,Y/Z)\$ 对 \$\mathbf{t}\$ 的敏感性下降；建议含近景或倾斜视角数据。
+* **畸变正确性**：未正确建模/应用畸变，误差在视场边缘会放大。
+* **时间同步**：相机/雷达时戳不对齐在动态场景中会造成系统偏移，应对齐或做运动补偿。
+
 
 ---
 

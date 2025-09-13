@@ -1,8 +1,8 @@
 <h1 align="center">🚀 LiDAR-Camera Calibration Validator</h1>
 
-&emsp;&emsp;一个用于验证激光雷达-相机联合标定质量的高性能ROS包，提供实时可视化、定量评价指标和精确的投影计算。  
+一个用于验证激光雷达-相机联合标定质量的高性能ROS包，提供实时可视化、定量评价指标和精确的投影计算。  
 
-&emsp;&emsp;A high-performance ROS package for validating LiDAR-camera calibration quality through real-time visualization, quantitative metrics, and precise projection calculations.
+A high-performance ROS package for validating LiDAR-camera calibration quality through real-time visualization, quantitative metrics, and precise projection calculations.
 
 ---
 

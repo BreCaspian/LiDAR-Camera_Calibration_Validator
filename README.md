@@ -337,7 +337,6 @@ calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
 
 ## 📝 开发指南 | Development Guide
 
-### 项目结构
 ```
 lidar_cam_validator/
 ├── include/
@@ -361,7 +360,6 @@ lidar_cam_validator/
 
 ## 🔧 贡献指南 | Contributing
 
-### 开发环境设置
 1. Fork 项目到您的 GitHub 账户
 2. 创建功能分支: `git checkout -b feature/your-feature`
 3. 提交更改: `git commit -am 'Add some feature'`

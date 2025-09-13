@@ -264,6 +264,9 @@ cloud_topic: "/cloudpoints"        # 替换为您的点云话题
 
 fused_topic: "/validator/fused_image"
 info_topic: "/validator/validation_info"
+
+calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
+
 ```
 
 ---
@@ -302,45 +305,6 @@ info_topic: "/validator/validation_info"
 | 参数名 | 类型 | 描述 |
 |--------|------|------|
 | **reset_to_defaults** | bool | 一键重置所有参数到默认值 |
-
----
-
-## 📋 配置文件 | Configuration Files
-
-### 标定参数 (config/sample_calibration.yaml)
-```yaml
-# 相机内参
-K_0: !!opencv-matrix
-   rows: 3
-   cols: 3
-   dt: d
-   data: [fx, 0, cx, 0, fy, cy, 0, 0, 1]
-
-# 相机畸变系数
-C_0: !!opencv-matrix
-   rows: 1
-   cols: 5
-   dt: d
-   data: [k1, k2, p1, p2, k3]
-
-# 外参: 雷达 -> 相机 (若是 相机 -> 雷达，请务必求逆！！！)
-E_0: !!opencv-matrix
-   rows: 4
-   cols: 4
-   dt: d
-   data: [R11, R12, R13, tx,
-          R21, R22, R23, ty,
-          R31, R32, R33, tz,
-          0,   0,   0,   1]
-```
-
-### 基本设置 (config/settings.yaml)
-```yaml
-image_topic: "/camera/image_raw"
-cloud_topic: "/velodyne_points"
-
-calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
-```
 
 ---
 

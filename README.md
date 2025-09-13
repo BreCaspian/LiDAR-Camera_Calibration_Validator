@@ -20,6 +20,20 @@ A high-performance ROS package for validating LiDAR-camera calibration quality t
 - **性能监控**: 实时FPS、处理时间等性能统计
 
   ---
+## 🎨 效果展示 | Effect Showcase
+
+
+
+<p align="center">
+  <img src="Doc/LCCV.png" alt="LCCV Overview" width="100%"/>
+</p>
+
+<p align="center">
+  <em>图 1：LiDAR-Camera Calibration Validator 系统概览 (LCCV Overview)</em>
+</p>
+
+
+---
 
 ## 📊 系统流程图 | System Flow
 
@@ -102,18 +116,43 @@ graph TB
 
 ### 📷 相机标定 (Camera Calibration)
 
-- [ROS 官方相机标定工具](https://wiki.ros.org/camera_calibration)
+- [ROS 官方相机标定工具](https://wiki.ros.org/camera_calibration)  
    提供单目/双目相机标定，输出相机内参与畸变参数。
+  
+
+<p align="center">
+  <img src="Doc/ROS-Calibration.png" alt="ROS Camera Calibration" width="90%"/>
+</p>
+<p align="center">
+  <em>图 2：ROS 相机标定示例 (Camera Calibration Example)</em>
+</p>
+
+---
 
 ### 🔗 激光雷达-相机联合标定 (LiDAR-Camera Extrinsic Calibration)
 
-- [direct_visual_lidar_calibration (GitHub)](https://github.com/koide3/direct_visual_lidar_calibration)
+- [direct_visual_lidar_calibration (GitHub)](https://github.com/koide3/direct_visual_lidar_calibration)  
    基于视觉与点云的高精度标定工具。
   
-- [官方教程 | Official Tutorial](https://koide3.github.io/direct_visual_lidar_calibration/)
+- [官方教程 | Official Tutorial](https://koide3.github.io/direct_visual_lidar_calibration/)  
    包含安装、数据准备、运行示例等详细步骤。
-  
+
+<p align="center">
+  <img src="Doc/LiDAR-Camera-Calibration.png" alt="LiDAR-Camera Calibration" width="90%"/>
+</p>
+<p align="center">
+  <em>图 3：激光雷达-相机联合标定效果 (LiDAR-Camera Calibration Result)</em>
+</p>
+
+<p align="center">
+  <img src="Doc/LiDAR-Camera-Calibration_2.png" alt="LiDAR-Camera Calibration Result" width="90%"/>
+</p>
+<p align="center">
+  <em>图 4：激光雷达-相机联合标定过程 (LiDAR-Camera Calibration Process)</em>
+</p>
+
 ---
+
 
 ## 🛠️ 系统要求 | System Requirements
 
@@ -142,6 +181,7 @@ graph TB
 #### 1. 克隆项目
 ```bash
 mkdir -p ~/catkin_ws/src
+
 cd ~/catkin_ws/src
 git clone https://github.com/BreCaspian/LiDAR-Camera_Calibration_Validator.git
 cd lidar_cam_validator
@@ -157,10 +197,9 @@ cd lidar_cam_validator
 # 如果有缺失依赖，按照脚本提示安装
 ```
 ---
-
 ## 🚀 快速开始 | Quick Start
 
-### 1. 一键启动 (推荐)
+### 一键启动 (推荐)
 
 #### 快速启动使用
 ```bash
@@ -170,13 +209,15 @@ cd ~/catkin_ws/src/lidar_cam_validator
 # 编辑配置标定参数
 vim ~/catkin_ws/src/lidar_cam_validator/config/sample_calibration.yaml
 
+# 分别启动 LiDAR 和 Camera ROS驱动 发布相关话题
+
 # 一键启动（将会自动编译、启动验证器、参数GUI、可视化GUI）
 ./scripts/quick_start.sh -i /camera/image_raw -c /velodyne_points 
 # 请替换为您的 相机图像话题 /camera/image_raw 和 点云话题 /velodyne_points 
 ```
 ---
 
-#### 高级选项
+## 高级选项 | Advanced Options
 ```bash
 # 检查依赖状态
 ./scripts/quick_start.sh --check-deps
@@ -200,7 +241,7 @@ vim ~/catkin_ws/src/lidar_cam_validator/config/sample_calibration.yaml
 ./scripts/quick_start.sh --help
 ```
 
-### 2. 手动启动 (高级用户操作选项)
+### 1. 手动启动 (高级用户操作选项)
 
 #### 启动验证器
 ```bash
@@ -215,7 +256,7 @@ roslaunch lidar_cam_validator validator.launch
 rosrun rqt_reconfigure rqt_reconfigure
 ```
 
-### 3. 配置标定参数
+### 2. 配置标定参数
 
 #### 编辑标定文件
 ```bash
@@ -249,7 +290,7 @@ E_0: !!opencv-matrix
           0,   0,   0,   1]
 ```
 
-### 4. 配置话题设置
+### 3. 配置话题设置
 
 #### 方法一：命令行指定 (推荐)
 ```bash
@@ -321,6 +362,13 @@ calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
 - **颜色条**: 右上角深度范围指示器
 - **统计信息**: 左上角实时处理统计
 
+<p align="center">
+  <img src="Doc/VisualizationGUI.png" alt="Visualization GUI" width="85%"/>
+</p>
+<p align="center">
+  <em>图 5：验证器可视化界面 (Visualization GUI Overview)</em>
+</p>
+
 #### 界面元素
 - **点云可视化**: 3像素默认点大小，清晰可见
 - **边缘检测**: Canny边缘检测叠加显示
@@ -333,27 +381,28 @@ calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
 - **`/validator_node/parameter_descriptions`**: 发布参数描述信息
 - **`/validator_node/parameter_updates`**: 发布参数变更事件
 
+
 ---
 
 ## 📝 开发指南 | Development Guide
 
 ```
 lidar_cam_validator/
-├── include/
-│   └── calibration_validator.h      # 主要头文件
-├── src/
-│   ├── calibration_validator.cpp    # 核心实现
-│   └── validator_node.cpp          # 节点入口
-├── scripts/
-│   └── quick_start.sh              # 一键启动脚本
-├── config/
-│   ├── Validator.cfg               # 动态参数配置
-│   ├── sample_calibration.yaml    # 标定参数示例
-│   └── settings.yaml              # 话题设置
-├── launch/
-│   └── validator.launch           # 启动文件
-├── README.md                       # 完整项目文档
-└── CMakeLists.txt                 # 构建配置
+├── 📁 include/
+│   └── 📄 calibration_validator.h      # 核心功能类的头文件定义
+├── 📁 src/
+│   ├── 📄 calibration_validator.cpp    # 核心算法和功能的实现
+│   └── 📄 validator_node.cpp          # ROS 节点入口，负责数据订阅与发布
+├── 📁 scripts/
+│   └── 🚀 quick_start.sh              # 一键启动与测试脚本
+├── 📁 config/
+│   ├── ⚙️ Validator.cfg               # 动态调参配置文件 (rqt_reconfigure)
+│   ├── 📝 sample_calibration.yaml    # 标定参数示例文件 (Extrinsics)
+│   └── 🔧 settings.yaml              # 话题名称与框架参数设置
+├── 📁 launch/
+│   └── ▶️ validator.launch           # ROS 启动文件，集成所有节点和配置
+├── 📖 README.md                       # 项目说明文档
+└── 📜 CMakeLists.txt                 # CMake 构建配置文件
 ```
 
 ---

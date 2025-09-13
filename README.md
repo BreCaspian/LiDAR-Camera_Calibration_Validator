@@ -392,7 +392,7 @@ This project is licensed under the GNU General Public License v3.0 or later (GPL
 
 - ROS社区提供的优秀框架
 - OpenCV和PCL库的强大支持
-- 相关优秀开源
+- Dr. Kenji Koide 开源联合标定工具箱
 
 ---
 

@@ -409,6 +409,7 @@ lidar_cam_validator/
 ## 📐 数学原理 | Mathematical Foundations
 
 - 本节简述该工具相关数学原理，由于该工具侧重于实用，故只简单给出相关数学定义与数学表达，以便交流讨论
+- 个人数学功底一般，若有问题，欢迎批评指正
 > 个人简单定义从 LiDAR 点到图像像素的投影模型，以及用于验证标定质量的定量指标。符号与配置字段对应：  
 > `E_0` (外参, $T_{C\leftarrow L}$)、`K_0` (内参, K)、`C_0` (畸变, k1/k2/k3, p1/p2)。
 
@@ -416,7 +417,7 @@ lidar_cam_validator/
 
 ### 1) 坐标系与外参 | Frames & Extrinsics
 
-- LiDAR 坐标系记为 **{L}**，相机坐标系记为 **{C}**。  
+- LiDAR 坐标系记为 **{L}** ，相机坐标系记为 **{C}** 。  
 - 外参矩阵（LiDAR → Camera）记为：
 
 ```math
@@ -437,7 +438,7 @@ lidar_cam_validator/
 ```
 
 * **可见性约束**：仅当 \$Z>0\$（点在相机前方）时才继续投影。
-* 若配置给出的是 \$\mathbf{T}\_{L\leftarrow C}\$（Camera→LiDAR），须取逆：
+* 若标定工具给出的外参矩阵是 \$\mathbf{T}\_{L\leftarrow C}\$（Camera→LiDAR），须取逆：
 
 ```math
 \mathbf{T}_{C\leftarrow L}=\left(\mathbf{T}_{L\leftarrow C}\right)^{-1}
@@ -499,7 +500,7 @@ u=f_x\,x_d + c_x,\qquad v=f_y\,y_d + c_y
 \mathrm{Overlap}=\frac{1}{N}\sum_{i=1}^{N}\mathbf{1}\!\left[D(v_i,u_i)\le \tau\right]
 ```
 
-* **个人理解**：值越大对齐越好；\$\tau\$ 可取 2–5 像素（依分辨率/噪声而定）。
+* **个人理解**：值越大对齐越好； $\tau$ 可取 2–5 像素（依分辨率/噪声而定）。
 
 **(3.2) 归一化互信息（Normalized Mutual Information, NMI）**
 
@@ -524,8 +525,8 @@ H(X)=-\sum_x p(x)\log p(x),\quad
 
 ### 4) 数值注意事项 | Numerical Notes
 
-* **单位一致**：\$\mathbf{t}\$ 与点坐标单位必须一致（米）。
-* **远距退化**：场景多为远景时，\$(X/Z,Y/Z)\$ 对 \$\mathbf{t}\$ 的敏感性下降；建议含近景或倾斜视角数据。
+* **单位一致**： \$\mathbf{t}\$ 与点坐标单位必须一致（米）。
+* **远距退化**：场景多为远景时， \$(X/Z,Y/Z)\$ 对 \$\mathbf{t}\$ 的敏感性下降；建议含近景或倾斜视角数据。
 * **畸变正确性**：未正确建模/应用畸变，误差在视场边缘会放大。
 * **时间同步**：相机/雷达时戳不对齐在动态场景中会造成系统偏移，应对齐或做运动补偿。
 

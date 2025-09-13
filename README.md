@@ -109,8 +109,10 @@ graph TB
 
 - [direct_visual_lidar_calibration (GitHub)](https://github.com/koide3/direct_visual_lidar_calibration)
    基于视觉与点云的高精度标定工具。
+  
 - [官方教程 | Official Tutorial](https://koide3.github.io/direct_visual_lidar_calibration/)
    包含安装、数据准备、运行示例等详细步骤。
+  
 ---
 
 ## 🛠️ 系统要求 | System Requirements
@@ -172,6 +174,7 @@ vim ~/catkin_ws/src/lidar_cam_validator/config/sample_calibration.yaml
 ./scripts/quick_start.sh -i /camera/image_raw -c /velodyne_points 
 # 请替换为您的 相机图像话题 /camera/image_raw 和 点云话题 /velodyne_points 
 ```
+---
 
 #### 高级选项
 ```bash

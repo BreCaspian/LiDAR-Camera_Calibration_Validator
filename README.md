@@ -447,9 +447,9 @@ This project is licensed under the GNU General Public License v3.0 or later (GPL
 
 如有问题或建议，请通过以下方式联系：
 
-**项目作者**: 姚宇倬
+**项目作者** : 姚宇倬
 
-**电子邮箱**: yaoyuzhuo6@gmail.com
+**电子邮箱** : yaoyuzhuo6@gmail.com
 
 ---
 

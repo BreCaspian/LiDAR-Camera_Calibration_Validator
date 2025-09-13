@@ -21,6 +21,98 @@ A high-performance ROS package for validating LiDAR-camera calibration quality t
 
   ---
 
+## 📊 系统流程图 | System Flow
+
+```mermaid
+%%{init: {"themeVariables": {
+    "fontSize": "18px",
+    "nodeSpacing": 28,
+    "rankSpacing": 35
+}}}%%
+
+graph TB
+    %% 节点样式
+    classDef input   fill:#4DB6AC,stroke:#00695C,stroke-width:2px,color:#fff,font-weight:bold
+    classDef config  fill:#64B5F6,stroke:#1E88E5,stroke-width:2px,color:#fff,font-weight:bold
+    classDef sync    fill:#BA68C8,stroke:#6A1B9A,stroke-width:2px,color:#fff,font-weight:bold
+    classDef process fill:#FFD54F,stroke:#F9A825,stroke-width:2px,color:#000,font-weight:bold
+    classDef metrics fill:#FF8A65,stroke:#D84315,stroke-width:2px,color:#fff,font-weight:bold
+    classDef output  fill:#90A4AE,stroke:#37474F,stroke-width:2px,color:#fff,font-weight:bold
+
+    %% 输入层
+    subgraph 输入层
+        A["相机图像 -- /image_topic"]
+        B["LiDAR 点云 -- /cloud_topic"]
+    end
+    class A,B input
+
+    %% 配置层
+    subgraph 配置层
+        C["标定参数 -- K / C / E"]
+        D["动态参数 -- Validator.cfg"]
+    end
+    class C,D config
+
+    %% 同步层
+    subgraph 同步层
+        E["时间同步 -- ApproximateTime"]
+    end
+    class E sync
+
+    %% 处理层
+    subgraph 处理层
+        F["点云预处理 -- 降采样/过滤"]
+        G["点云投影 -- 投影到图像平面"]
+        H["可视化叠加 -- 统计/边缘/色条"]
+    end
+    class F,G,H process
+
+    %% 指标层
+    subgraph 指标层
+        I["质量指标 -- EdgeOverlap/NMI"]
+        J["性能统计 -- FPS/延迟"]
+    end
+    class I,J metrics
+
+    %% 输出层
+    subgraph 输出层
+        K["ROS 发布 -- /fused_image"]
+        L["ROS 发布 -- /validation_info"]
+        M["GUI 显示 -- OpenCV 窗口"]
+    end
+    class K,L,M output
+
+    %% 数据流
+    A --> E
+    B --> E
+    C --> G
+    D --> G
+    E --> F --> G --> H
+    G --> I
+    H --> K
+    H --> M
+    I --> L
+    H --> J
+    J --> L
+```
+---
+## 🔍 推荐标定工具 | Recommended Calibration Tools
+
+在使用本验证工具前，建议先完成 **相机标定** 与 **激光雷达-相机联合标定**，以保证结果的准确性。
+
+### 📷 相机标定 (Camera Calibration)
+
+- [ROS 官方相机标定工具](https://wiki.ros.org/camera_calibration)
+   提供单目/双目相机标定，输出相机内参与畸变参数。
+
+### 🔗 激光雷达-相机联合标定 (LiDAR-Camera Extrinsic Calibration)
+
+- [direct_visual_lidar_calibration (GitHub)](https://github.com/koide3/direct_visual_lidar_calibration)
+   基于视觉与点云的高精度标定工具。
+- [官方教程 | Official Tutorial](https://koide3.github.io/direct_visual_lidar_calibration/)
+   包含安装、数据准备、运行示例等详细步骤。
+---
+
 ## 🛠️ 系统要求 | System Requirements
 
 ### 必需依赖 | Required Dependencies
@@ -62,14 +154,13 @@ cd lidar_cam_validator
 ```bash
 # 如果有缺失依赖，按照脚本提示安装
 ```
-
 ---
 
 ## 🚀 快速开始 | Quick Start
 
 ### 1. 一键启动 (推荐)
 
-#### 基本启动
+#### 快速启动使用
 ```bash
 # 进入项目目录
 cd ~/catkin_ws/src/lidar_cam_validator

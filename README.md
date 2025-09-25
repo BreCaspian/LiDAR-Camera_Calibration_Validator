@@ -184,7 +184,7 @@ mkdir -p ~/catkin_ws/src
 
 cd ~/catkin_ws/src
 git clone https://github.com/BreCaspian/LiDAR-Camera_Calibration_Validator.git
-cd lidar_cam_validator
+cd LiDAR-Camera_Calibration_Validator
 ```
 
 #### 2. 检查依赖状态

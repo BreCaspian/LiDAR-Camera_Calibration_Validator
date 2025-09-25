@@ -204,10 +204,10 @@ cd LiDAR-Camera_Calibration_Validator
 #### 快速启动使用
 ```bash
 # 进入项目目录
-cd ~/catkin_ws/src/lidar_cam_validator
+cd ~/catkin_ws/src/LiDAR-Camera_Calibration_Validator
 
 # 编辑配置标定参数
-vim ~/catkin_ws/src/lidar_cam_validator/config/sample_calibration.yaml
+vim ~/catkin_ws/src/LiDAR-Camera_Calibration_Validator/config/sample_calibration.yaml
 
 # 分别启动 LiDAR 和 Camera ROS驱动 发布相关话题
 
@@ -260,7 +260,7 @@ rosrun rqt_reconfigure rqt_reconfigure
 
 #### 编辑标定文件
 ```bash
-vim ~/catkin_ws/src/lidar_cam_validator/config/sample_calibration.yaml
+vim ~/catkin_ws/src/LiDAR-Camera_Calibration_Validator/config/sample_calibration.yaml
 ```
 
 #### 标定参数格式
@@ -299,7 +299,7 @@ E_0: !!opencv-matrix
 
 #### 方法二：编辑配置文件
 ```bash
-vim ~/catkin_ws/src/lidar_cam_validator/config/settings.yaml
+vim ~/catkin_ws/src/LiDAR-Camera_Calibration_Validator/config/settings.yaml
 ```
 
 ```yaml
@@ -387,7 +387,7 @@ calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
 ## 📝 开发指南 | Development Guide
 
 ```
-lidar_cam_validator/
+LiDAR-Camera_Calibration_Validator/
 ├── 📁 include/
 │   └── 📄 calibration_validator.h      # 核心功能类的头文件定义
 ├── 📁 src/

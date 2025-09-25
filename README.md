@@ -194,7 +194,7 @@ cd LiDAR-Camera_Calibration_Validator
 
 #### 3. 根据提示安装依赖
 ```bash
-# 如果有缺失依赖，按照脚本提示安装
+# 如果有缺失依赖，按照脚本提示安装 (可选GUI依赖如果实在装不上可以跳过)
 ```
 ---
 ## 🚀 快速开始 | Quick Start

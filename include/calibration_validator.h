@@ -40,7 +40,7 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <lidar_cam_validator/ValidatorConfig.h>
 
-#define PARALLEL_PROCESSING_THRESHOLD 100000
+#define PARALLEL_PROCESSING_THRESHOLD 30000
 
 
 namespace lidar_cam_validator {
@@ -95,6 +95,10 @@ private:
     Eigen::Matrix4f lidar_to_camera_;
     Eigen::Matrix3f camera_matrix_;
     bool calibration_loaded_;
+    
+    double fx_, fy_, cx_, cy_;           
+    double k1_, k2_, k3_, p1_, p2_;      
+    bool has_distortion_;                
 
     cv::Mat latest_image_;
     pcl::PointCloud<pcl::PointXYZ>::Ptr latest_cloud_;
@@ -123,7 +127,6 @@ private:
     boost::recursive_mutex config_server_mutex_;
     std::mutex data_mutex_;
 
-    // Callbacks & Processing
     void syncCallback(const sensor_msgs::ImageConstPtr& image_msg,
                       const sensor_msgs::PointCloud2ConstPtr& cloud_msg);
 
@@ -173,7 +176,7 @@ private:
     void updatePerformanceStats();
 };
 
-} // namespace lidar_cam_validator
+}
 
 #endif // CALIBRATION_VALIDATOR_H
 

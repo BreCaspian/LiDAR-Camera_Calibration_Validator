@@ -580,5 +580,5 @@ This project is licensed under the GNU General Public License v3.0 or later (GPL
 ---
 
 <p align="center">
-  <b>LiDAR-Camera Calibration Validator v3.1</b> - 激光雷达-相机联合标定结果快速验证！ 🚀
+  <b>LiDAR-Camera Calibration Validator v3.2.0</b> - 激光雷达-相机联合标定结果快速验证！ 🚀
 </p>

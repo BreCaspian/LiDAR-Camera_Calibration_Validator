@@ -3,6 +3,15 @@
 All notable changes to the LiDAR-Camera Calibration Validator project will be documented in this file.
 
 ---
+## [3.2.0] - 2025-10-19
+
+### Fixed
+
+- **GUI事件循环修复**: 解决 "not responding" 问题
+- **并行处理阈值优化**: 性能提升，扩大兼容设备范围
+- **参数缓存优化**: 畸变矫正加速
+- **跳帧保护机制**: 防止低端机器数据积压
+
 
 ## [3.1.0] - 2025-09-12
 

@@ -10,6 +10,7 @@
 #include <numeric>
 #include <algorithm>
 #include <cmath>
+#include <atomic>
 
 namespace lidar_cam_validator {
 
@@ -135,14 +136,29 @@ bool CalibrationValidator::loadCalibrationParameters() {
         }
     }
     
-    double fx = K_matrix_.at<double>(0,0);
-    double fy = K_matrix_.at<double>(1,1);
-    double cx = K_matrix_.at<double>(0,2);
-    double cy = K_matrix_.at<double>(1,2);
+    fx_ = K_matrix_.at<double>(0,0);
+    fy_ = K_matrix_.at<double>(1,1);
+    cx_ = K_matrix_.at<double>(0,2);
+    cy_ = K_matrix_.at<double>(1,2);
 
-    if (fx <= 0 || fy <= 0 || cx <= 0 || cy <= 0) {
+    if (fx_ <= 0 || fy_ <= 0 || cx_ <= 0 || cy_ <= 0) {
         ROS_ERROR("[CalibrationValidator] Invalid camera intrinsic parameters!");
         return false;
+    }
+    
+    if (!D_coeffs_.empty() && D_coeffs_.rows >= 4) {
+        has_distortion_ = true;
+        k1_ = D_coeffs_.at<double>(0, 0);
+        k2_ = D_coeffs_.at<double>(0, 1);
+        p1_ = D_coeffs_.at<double>(0, 2);
+        p2_ = D_coeffs_.at<double>(0, 3);
+        k3_ = (D_coeffs_.cols > 4) ? D_coeffs_.at<double>(0, 4) : 0.0;
+        ROS_INFO("[CalibrationValidator] Distortion coefficients cached: k1=%.4f, k2=%.4f, p1=%.4f, p2=%.4f, k3=%.4f", 
+                 k1_, k2_, p1_, p2_, k3_);
+    } else {
+        has_distortion_ = false;
+        k1_ = k2_ = k3_ = p1_ = p2_ = 0.0;
+        ROS_INFO("[CalibrationValidator] No distortion correction (pinhole model)");
     }
 
     cv::Mat R = E_matrix_(cv::Rect(0, 0, 3, 3));
@@ -152,7 +168,7 @@ bool CalibrationValidator::loadCalibrationParameters() {
     }
 
     ROS_INFO("[CalibrationValidator] Calibration parameters loaded successfully from: %s", calib_file.c_str());
-    ROS_INFO("[CalibrationValidator] Camera intrinsics: fx=%.3f, fy=%.3f, cx=%.3f, cy=%.3f", fx, fy, cx, cy);
+    ROS_INFO("[CalibrationValidator] Camera intrinsics: fx=%.3f, fy=%.3f, cx=%.3f, cy=%.3f", fx_, fy_, cx_, cy_);
     ROS_INFO("[CalibrationValidator] Rotation matrix determinant: %.6f", det);
     ROS_INFO("[CalibrationValidator] Translation: [%.3f, %.3f, %.3f]",
              E_matrix_.at<double>(0,3), E_matrix_.at<double>(1,3), E_matrix_.at<double>(2,3));
@@ -265,6 +281,14 @@ void CalibrationValidator::syncCallback(const sensor_msgs::ImageConstPtr& image_
         return;
     }
 
+    static std::atomic<bool> is_processing{false};
+    if (is_processing.load(std::memory_order_acquire)) {
+        ROS_WARN_THROTTLE(2.0, "[CalibrationValidator] Skipping frame - previous frame still processing");
+        ROS_WARN_THROTTLE(2.0, "[CalibrationValidator] Consider enabling downsampling or reducing point cloud density");
+        return;
+    }
+    is_processing.store(true, std::memory_order_release);
+
     auto start_time = std::chrono::high_resolution_clock::now();
 
     try {
@@ -322,6 +346,8 @@ void CalibrationValidator::syncCallback(const sensor_msgs::ImageConstPtr& image_
     } catch (...) {
         ROS_ERROR("[CalibrationValidator] Unknown error in sync callback");
     }
+    
+    is_processing.store(false, std::memory_order_release);
 }
 cv::Mat CalibrationValidator::projectPointsToImage(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud,
                                                   const cv::Mat& image,
@@ -454,37 +480,22 @@ cv::Scalar CalibrationValidator::depthToColor(float depth, float min_depth, floa
 }
 cv::Point2f CalibrationValidator::applyDistortionCorrection(float u_norm, float v_norm) {
 
-    if (D_coeffs_.empty() || D_coeffs_.rows < 4) {
-        double fx = K_matrix_.at<double>(0, 0);
-        double fy = K_matrix_.at<double>(1, 1);
-        double cx = K_matrix_.at<double>(0, 2);
-        double cy = K_matrix_.at<double>(1, 2);
-        return cv::Point2f(u_norm * fx + cx, v_norm * fy + cy);
+    if (!has_distortion_) {
+        return cv::Point2f(u_norm * fx_ + cx_, v_norm * fy_ + cy_);
     }
-
-    double k1 = D_coeffs_.at<double>(0, 0);
-    double k2 = D_coeffs_.at<double>(0, 1);
-    double p1 = D_coeffs_.at<double>(0, 2);
-    double p2 = D_coeffs_.at<double>(0, 3);
-    double k3 = (D_coeffs_.cols > 4) ? D_coeffs_.at<double>(0, 4) : 0.0;
 
     double r2 = u_norm * u_norm + v_norm * v_norm;
     double r4 = r2 * r2;
     double r6 = r4 * r2;
-    double radial_distortion = 1.0 + k1 * r2 + k2 * r4 + k3 * r6;
+    double radial_distortion = 1.0 + k1_ * r2 + k2_ * r4 + k3_ * r6;
 
-    double tangential_u = 2.0 * p1 * u_norm * v_norm + p2 * (r2 + 2.0 * u_norm * u_norm);
-    double tangential_v = p1 * (r2 + 2.0 * v_norm * v_norm) + 2.0 * p2 * u_norm * v_norm;
+    double tangential_u = 2.0 * p1_ * u_norm * v_norm + p2_ * (r2 + 2.0 * u_norm * u_norm);
+    double tangential_v = p1_ * (r2 + 2.0 * v_norm * v_norm) + 2.0 * p2_ * u_norm * v_norm;
 
     double u_distorted = u_norm * radial_distortion + tangential_u;
     double v_distorted = v_norm * radial_distortion + tangential_v;
 
-    double fx = K_matrix_.at<double>(0, 0);
-    double fy = K_matrix_.at<double>(1, 1);
-    double cx = K_matrix_.at<double>(0, 2);
-    double cy = K_matrix_.at<double>(1, 2);
-
-    return cv::Point2f(u_distorted * fx + cx, v_distorted * fy + cy);
+    return cv::Point2f(u_distorted * fx_ + cx_, v_distorted * fy_ + cy_);
 }
 pcl::PointCloud<pcl::PointXYZ>::Ptr CalibrationValidator::downsamplePointCloud(
     const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, int max_points) {

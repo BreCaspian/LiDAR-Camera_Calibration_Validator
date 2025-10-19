@@ -90,6 +90,8 @@ int main(int argc, char** argv) {
 
         while (ros::ok() && !g_shutdown_requested) {
             ros::spinOnce();
+        
+            cv::waitKey(1);
 
             ros::Time current_time = ros::Time::now();
             if (validator.hasDataReceived()) {

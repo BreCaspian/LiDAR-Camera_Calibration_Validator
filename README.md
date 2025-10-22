@@ -118,7 +118,7 @@ graph TB
 
 - [ROS 官方相机标定工具](https://wiki.ros.org/camera_calibration)  提供单目/双目相机标定，输出相机内参与畸变参数。
 
-- [ROS 相机标定详细教程](https://blog.csdn.net/2401_88008105/article/details/152665216?spm=1001.2014.3001.5506) 华北理工大学-HORIZON战队-雷达组 ROS相机标定教程。
+- [ROS 相机标定详细教程](https://blog.csdn.net/2401_88008105/article/details/152665216?spm=1001.2014.3001.5506) 华北理工大学-HORIZON战队-雷达组 ROS 相机标定教程。
 
 <p align="center">
   <img src="Doc/ROS-Calibration.png" alt="ROS Camera Calibration" width="90%"/>

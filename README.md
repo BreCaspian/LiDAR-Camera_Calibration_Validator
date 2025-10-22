@@ -116,9 +116,9 @@ graph TB
 
 ### 📷 相机标定 (Camera Calibration)
 
-- [ROS 官方相机标定工具](https://wiki.ros.org/camera_calibration)  
-   提供单目/双目相机标定，输出相机内参与畸变参数。
-  
+- [ROS 官方相机标定工具](https://wiki.ros.org/camera_calibration)  提供单目/双目相机标定，输出相机内参与畸变参数。
+
+- [ROS 相机标定详细教程](https://blog.csdn.net/2401_88008105/article/details/152665216?spm=1001.2014.3001.5506) 华北理工大学-HORIZON战队-雷达组 ROS相机标定教程。
 
 <p align="center">
   <img src="Doc/ROS-Calibration.png" alt="ROS Camera Calibration" width="90%"/>
@@ -131,11 +131,9 @@ graph TB
 
 ### 🔗 激光雷达-相机联合标定 (LiDAR-Camera Extrinsic Calibration)
 
-- [direct_visual_lidar_calibration (GitHub)](https://github.com/koide3/direct_visual_lidar_calibration)  
-   基于视觉与点云的高精度标定工具。
+- [direct_visual_lidar_calibration (GitHub)](https://github.com/koide3/direct_visual_lidar_calibration)  基于视觉与点云的高精度标定工具。
   
-- [官方教程 | Official Tutorial](https://koide3.github.io/direct_visual_lidar_calibration/)  
-   包含安装、数据准备、运行示例等详细步骤。
+- [官方教程 | Official Tutorial](https://koide3.github.io/direct_visual_lidar_calibration/)  包含安装、数据准备、运行示例等详细步骤。
 
 <p align="center">
   <img src="Doc/LiDAR-Camera-Calibration.png" alt="LiDAR-Camera Calibration" width="90%"/>

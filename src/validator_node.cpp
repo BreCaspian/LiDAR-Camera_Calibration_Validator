@@ -94,15 +94,11 @@ int main(int argc, char** argv) {
             cv::waitKey(1);
 
             ros::Time current_time = ros::Time::now();
-            if (validator.hasDataReceived()) {
-                last_warning_time = current_time;
-            } else {
-                if ((current_time - last_warning_time).toSec() > warning_interval) {
-                    ROS_WARN_THROTTLE(10.0, "[ValidatorNode] No data received for a while. Check topic connections:");
-                    ROS_WARN_THROTTLE(10.0, "[ValidatorNode]   rostopic list | grep -E '(image|points)'");
-                    ROS_WARN_THROTTLE(10.0, "[ValidatorNode]   rostopic hz <your_topic>");
-                    last_warning_time = current_time;
-                }
+            double since_last = (current_time - validator.getLastDataTime()).toSec();
+            if (since_last > warning_interval) {
+                ROS_WARN_THROTTLE(10.0, "[ValidatorNode] No image/cloud message for %.1fs. Check sync & timestamps.", since_last);
+                ROS_WARN_THROTTLE(10.0, "[ValidatorNode]   rostopic list | grep -E '(image|points)'");
+                ROS_WARN_THROTTLE(10.0, "[ValidatorNode]   rostopic hz <your_topic>");
             }
 
             loop_rate.sleep();

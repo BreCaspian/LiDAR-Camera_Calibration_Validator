@@ -38,6 +38,10 @@ CalibrationValidator::CalibrationValidator(ros::NodeHandle& nh, ros::NodeHandle&
     image_sub_.reset(new message_filters::Subscriber<sensor_msgs::Image>(nh_, image_topic_, 10));
     cloud_sub_.reset(new message_filters::Subscriber<sensor_msgs::PointCloud2>(nh_, cloud_topic_, 10));
 
+        // 单话题心跳（不影响同步器），任一话题到达都更新“最近收数时间”
+    image_sub_->registerCallback(boost::bind(&CalibrationValidator::imageHeartbeat, this, _1));
+    cloud_sub_->registerCallback(boost::bind(&CalibrationValidator::cloudHeartbeat, this, _1));
+
     int queue_size;
     pnh_.param<int>("queue_size", queue_size, 10);
     sync_.reset(new Synchronizer(SyncPolicy(queue_size), *image_sub_, *cloud_sub_));
@@ -213,10 +217,11 @@ void CalibrationValidator::configCallback(lidar_cam_validator::ValidatorConfig& 
 }
 void CalibrationValidator::checkParameterUpdates(const ros::TimerEvent& /*event*/) {
     std::string new_image_topic, new_cloud_topic, new_fused_topic, new_info_topic;
-    nh_.param<std::string>("image_topic", new_image_topic, "/image_raw");
-    nh_.param<std::string>("cloud_topic", new_cloud_topic, "/cloudpoints");
-    nh_.param<std::string>("fused_topic", new_fused_topic, "/validator/fused_image");
-    nh_.param<std::string>("info_topic", new_info_topic, "/validator/validation_info");
+    
+    pnh_.param<std::string>("image_topic", new_image_topic, "/image_raw");
+    pnh_.param<std::string>("cloud_topic", new_cloud_topic, "/velodyne_points");
+    pnh_.param<std::string>("fused_topic", new_fused_topic, "/validator/fused_image");
+    pnh_.param<std::string>("info_topic", new_info_topic, "/validator/validation_info");
 
     bool topics_changed = false;
 
@@ -732,6 +737,17 @@ void CalibrationValidator::drawDepthColorbar(cv::Mat& image, float min_depth, fl
                 cv::Point(legend_x + legend_width/2 - 25, legend_y - 8),
                 cv::FONT_HERSHEY_SIMPLEX, 0.65, cv::Scalar(255, 255, 255), 1);
 }
+
+void CalibrationValidator::imageHeartbeat(const sensor_msgs::ImageConstPtr& /*msg*/) {
+    data_received_ = true;
+    last_data_time_ = ros::Time::now();
+}
+
+void CalibrationValidator::cloudHeartbeat(const sensor_msgs::PointCloud2ConstPtr& /*msg*/) {
+    data_received_ = true;
+    last_data_time_ = ros::Time::now();
+}
+
 void CalibrationValidator::publishValidationInfo(const ValidationMetrics& metrics) {
     std::ostringstream json_stream;
     json_stream << "{"

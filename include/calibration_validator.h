@@ -127,6 +127,11 @@ private:
     boost::recursive_mutex config_server_mutex_;
     std::mutex data_mutex_;
 
+    // 单话题心跳，用于更新 last_data_time_，避免“不同步误报无数据”
+    void imageHeartbeat(const sensor_msgs::ImageConstPtr& msg);
+    void cloudHeartbeat(const sensor_msgs::PointCloud2ConstPtr& msg);
+
+
     void syncCallback(const sensor_msgs::ImageConstPtr& image_msg,
                       const sensor_msgs::PointCloud2ConstPtr& cloud_msg);
 

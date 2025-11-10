@@ -308,6 +308,7 @@ void CalibrationValidator::syncCallback(const sensor_msgs::ImageConstPtr& image_
         
         if (cloud->empty()) {
             ROS_WARN_THROTTLE(2.0, "[CalibrationValidator] Received empty point cloud");
+            is_processing.store(false, std::memory_order_release); 
             return;
         }
         

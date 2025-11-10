@@ -249,6 +249,9 @@ void CalibrationValidator::checkParameterUpdates(const ros::TimerEvent& /*event*
             image_sub_.reset(new message_filters::Subscriber<sensor_msgs::Image>(nh_, image_topic_, 10));
             cloud_sub_.reset(new message_filters::Subscriber<sensor_msgs::PointCloud2>(nh_, cloud_topic_, 10));
 
+            image_sub_->registerCallback(boost::bind(&CalibrationValidator::imageHeartbeat, this, _1));
+            cloud_sub_->registerCallback(boost::bind(&CalibrationValidator::cloudHeartbeat, this, _1));
+
             int queue_size;
             pnh_.param<int>("queue_size", queue_size, 10);
             sync_.reset(new Synchronizer(SyncPolicy(queue_size), *image_sub_, *cloud_sub_));

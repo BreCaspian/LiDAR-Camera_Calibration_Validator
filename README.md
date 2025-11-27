@@ -338,6 +338,47 @@ Livox Mid-70、Horizon 属于非重复扫描，单帧覆盖稀疏。请：
 
 这样即可在没有外部时间同步的条件下完成可视化校验。
 
+
+<p align="center">
+  <img src="Doc/Weixin Image_20251127171946_11_1.png" 
+       alt="Livox Mid70-1" width="45%" />
+  <img src="Doc/Weixin Image_20251127171953_12_1.png" 
+       alt="Livox Mid70-2" width="45%" />
+</p>
+
+<p align="center">
+  <em>图 5：非重复式激光雷达 Livox Mid70 效果</em>
+</p>
+
+> [!TIP]
+>**统一说明：**
+>
+> 1.为什么“随着目标距离增加点云缝隙吻合的更好”？
+>
+>     这是正常的物理现象。
+>
+>     原因——视差： 在近距离时，相机和雷达之间的安装位置差异（平移向量）引起的视差非常明显。
+>
+>     一点点标定误差在图像上都会产生巨大的像素偏移。
+>
+>     随着距离增加，平移带来的视差影响迅速减小，旋转误差占主导地位。
+>
+>     推荐评估观测距离为 8-10 米
+>    
+>  2.为什么结果一直显示 "Poor"？
+> 
+>     评价方法目前不具有自适应性，主要功能是为开发者提供可视化。
+>
+>     远处物体轮廓与点云边缘重合度在视觉上是合格的，就可以认为标定结果良好可用
+>
+>     Mid-70 的花瓣状扫描不如传统旋转雷达那样规则，可能会干扰依赖密集扫描线的评估算法
+>
+>     Livox 非重复扫描导致前景近距离点稀疏，本身也会让边缘匹配度低，所以 edge_overlap_score 更容易偏小
+> 
+>     不要过分迷信自动化工具的评分
+
+
+
 ---
 
 ## ⚙️ 参数配置 | Parameter Configuration
@@ -395,7 +436,7 @@ Livox Mid-70、Horizon 属于非重复扫描，单帧覆盖稀疏。请：
   <img src="Doc/VisualizationGUI.png" alt="Visualization GUI" width="85%"/>
 </p>
 <p align="center">
-  <em>图 5：验证器可视化界面 (Visualization GUI Overview)</em>
+  <em>图 6：验证器可视化界面 (Visualization GUI Overview)</em>
 </p>
 
 #### 界面元素
@@ -572,6 +613,16 @@ H(X)=-\sum_x p(x)\log p(x),\quad
 
 ---
 
+## ✅ TODO List
+
+* [ ] 支持 Livox 系列激光雷达
+* [ ] 去除外部时间同步依赖
+* [ ] 支持 ROS2
+* [ ] 支持 ROS-Docker
+* [ ] 支持 ROS2-Docker
+
+---
+
 ## 📄 许可证 | License
 
 本项目采用 GNU GPL v3 或更高版本 (GPL-3.0-or-later) 许可 - 详见 [LICENSE](LICENSE)
@@ -609,5 +660,8 @@ This project is licensed under the GNU General Public License v3.0 or later (GPL
 ---
 
 <p align="center">
-  <b>LiDAR-Camera Calibration Validator v3.2.0</b> - 激光雷达-相机联合标定结果快速验证！ 🚀
+  <b>LiDAR-Camera Calibration Validator v4.0.0</b> - 激光雷达-相机联合标定结果快速验证！ 🚀
 </p>
+
+
+

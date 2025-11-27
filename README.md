@@ -615,8 +615,8 @@ H(X)=-\sum_x p(x)\log p(x),\quad
 
 ## ✅ TODO List
 
-* [ ] 支持 Livox 系列激光雷达
-* [ ] 去除外部时间同步依赖
+* [x] 支持 Livox 系列激光雷达
+* [x] 去除外部时间同步依赖
 * [ ] 支持 ROS2
 * [ ] 支持 ROS-Docker
 * [ ] 支持 ROS2-Docker

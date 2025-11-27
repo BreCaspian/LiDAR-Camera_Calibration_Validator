@@ -19,6 +19,8 @@ A high-performance ROS package for validating LiDAR-camera calibration quality t
 
 - **性能监控**: 实时FPS、处理时间等性能统计
 
+- **广泛兼容**: 支持混合固态式、非重复式等多类型激光雷达
+
   ---
 ## 🎨 效果展示 | Effect Showcase
 

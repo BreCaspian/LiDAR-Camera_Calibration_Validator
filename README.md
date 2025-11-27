@@ -210,7 +210,13 @@ vim ~/catkin_ws/src/LiDAR-Camera_Calibration_Validator/config/sample_calibration
 # 分别启动 LiDAR 和 Camera ROS驱动 发布相关话题
 
 # 一键启动（将会自动编译、启动验证器、参数GUI、可视化GUI）
-./scripts/quick_start.sh -i /camera/image_raw -c /velodyne_points 
+./scripts/quick_start.sh -i /camera/image_raw -c /velodyne_points
+# 适用于 CH128X 等混合固态式激光雷达
+
+./scripts/quick_start.sh --sync-mode latest --latest-threshold 0.2 \
+    -i /galaxy_camera/image_raw -c /livox/lidar
+# 适用于 Livox Mid70 等非重复式激光雷达
+
 # 请替换为您的 相机图像话题 /camera/image_raw 和 点云话题 /velodyne_points 
 ```
 ---

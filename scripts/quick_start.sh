@@ -15,6 +15,8 @@ NC='\033[0m'
 IMAGE_TOPIC="/camera/image_raw"
 CLOUD_TOPIC="/cloudpoints"
 CALIBRATION_FILE=""
+SYNC_MODE="approximate"
+LATEST_THRESHOLD="0.5"
 LAUNCH_GUI=true
 SHOW_HELP=false
 CHECK_DEPS=false
@@ -31,6 +33,8 @@ show_help() {
     echo "  -i, --image-topic TOPIC    指定图像话题 (默认: /image_raw)"
     echo "  -c, --cloud-topic TOPIC    指定点云话题 (默认: /cloudpoints)"
     echo "  -f, --calibration-file FILE 指定标定文件路径"
+    echo "  --sync-mode MODE             指定同步策略 (approximate/latest)"
+    echo "  --latest-threshold SEC      latest模式下的到达间隔提示阈值(秒)"
     echo "  --no-gui                   不启动参数调节GUI"
     echo ""
     echo -e "${YELLOW}高级选项:${NC}"
@@ -69,6 +73,14 @@ while [[ $# -gt 0 ]]; do
             LAUNCH_GUI=false
             shift
             ;;
+        --sync-mode)
+            SYNC_MODE="$2"
+            shift 2
+            ;;
+        --latest-threshold)
+            LATEST_THRESHOLD="$2"
+            shift 2
+            ;;
         --check-deps)
             CHECK_DEPS=true
             shift
@@ -97,6 +109,15 @@ if [ "$SHOW_HELP" = true ]; then
     show_help
     exit 0
 fi
+
+case "$SYNC_MODE" in
+    approximate|latest|latest_pair)
+        ;;
+    *)
+        echo -e "${YELLOW}⚠️  未知sync-mode: $SYNC_MODE，自动使用 approximate${NC}"
+        SYNC_MODE="approximate"
+        ;;
+esac
 
 echo -e "${CYAN}🚀 LiDAR-Camera Calibration Validator 启动中...${NC}"
 echo "=========================================="
@@ -283,7 +304,7 @@ echo ""
 echo -e "${PURPLE}🎯 启动LiDAR-Camera Calibration Validator...${NC}"
 echo "=========================================="
 
-roslaunch "$TEMP_LAUNCH_FILE" &
+roslaunch "$TEMP_LAUNCH_FILE" sync_mode:=$SYNC_MODE latest_pair_time_threshold:=$LATEST_THRESHOLD &
 VALIDATOR_PID=$!
 sleep 3
 
@@ -342,4 +363,3 @@ echo -e "${BLUE}按 Ctrl+C 退出程序...${NC}"
 trap 'echo -e "\n${YELLOW}🛑 正在关闭程序...${NC}"; kill $VALIDATOR_PID 2>/dev/null; [ ! -z "$GUI_PID" ] && kill $GUI_PID 2>/dev/null; if [ "$ROSCORE_STARTED_BY_SCRIPT" = true ] && [ ! -z "$ROSCORE_PID" ]; then echo -e "${YELLOW}关闭由脚本启动的roscore...${NC}"; kill $ROSCORE_PID 2>/dev/null; fi; rm -f "$TEMP_LAUNCH_FILE"; echo -e "${GREEN}✅ 程序已退出${NC}"; exit 0' INT
 
 wait $VALIDATOR_PID
-

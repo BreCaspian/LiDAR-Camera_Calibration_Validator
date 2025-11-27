@@ -36,6 +36,7 @@
 #include <future>
 #include <algorithm>
 #include <map>
+#include <deque>
 
 #include <boost/thread/recursive_mutex.hpp>
 #include <lidar_cam_validator/ValidatorConfig.h>
@@ -81,6 +82,8 @@ private:
     std::shared_ptr<message_filters::Subscriber<sensor_msgs::Image>> image_sub_;
     std::shared_ptr<message_filters::Subscriber<sensor_msgs::PointCloud2>> cloud_sub_;
     std::shared_ptr<Synchronizer> sync_;
+    ros::Subscriber image_raw_sub_;
+    ros::Subscriber cloud_raw_sub_;
 
     image_transport::ImageTransport it_;
     image_transport::Publisher fused_image_pub_;
@@ -126,14 +129,39 @@ private:
     std::mutex config_mutex_;
     boost::recursive_mutex config_server_mutex_;
     std::mutex data_mutex_;
+    std::mutex accumulation_mutex_;
+
+    sensor_msgs::ImageConstPtr latest_image_msg_;
+    sensor_msgs::PointCloud2ConstPtr latest_cloud_msg_;
+    ros::Time latest_image_arrival_;
+    ros::Time latest_cloud_arrival_;
+    bool latest_image_dirty_ = false;
+    bool latest_cloud_dirty_ = false;
+
+    bool use_latest_sync_;
+    std::string sync_mode_;
+    double latest_pair_time_threshold_;
+
+    struct BufferedCloud {
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
+        ros::Time stamp;
+    };
+    std::deque<BufferedCloud> cloud_buffer_;
 
     // 单话题心跳，用于更新 last_data_time_，避免“不同步误报无数据”
     void imageHeartbeat(const sensor_msgs::ImageConstPtr& msg);
     void cloudHeartbeat(const sensor_msgs::PointCloud2ConstPtr& msg);
 
+    void setupApproximateSync();
+    void setupLatestSync();
+    void tryProcessLatestPair();
+    void processDataPair(const sensor_msgs::ImageConstPtr& image_msg,
+                         const sensor_msgs::PointCloud2ConstPtr& cloud_msg);
 
     void syncCallback(const sensor_msgs::ImageConstPtr& image_msg,
                       const sensor_msgs::PointCloud2ConstPtr& cloud_msg);
+    void imageLatestCallback(const sensor_msgs::ImageConstPtr& image_msg);
+    void cloudLatestCallback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg);
 
     cv::Mat projectPointsToImage(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud,
                                  const cv::Mat& image,
@@ -144,6 +172,9 @@ private:
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr downsamplePointCloud(
         const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, int max_points);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr accumulatePointCloud(
+        const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const ros::Time& stamp,
+        const lidar_cam_validator::ValidatorConfig& config);
 
     ValidationMetrics calculateValidationMetrics(const cv::Mat& image,
                                                  const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud,

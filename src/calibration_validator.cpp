@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cmath>
 #include <atomic>
+#include <cctype>
 
 namespace lidar_cam_validator {
 
@@ -35,17 +36,22 @@ CalibrationValidator::CalibrationValidator(ros::NodeHandle& nh, ros::NodeHandle&
     pnh_.param<std::string>("fused_topic", fused_topic_, "/validator/fused_image");
     pnh_.param<std::string>("info_topic", info_topic_, "/validator/validation_info");
 
-    image_sub_.reset(new message_filters::Subscriber<sensor_msgs::Image>(nh_, image_topic_, 10));
-    cloud_sub_.reset(new message_filters::Subscriber<sensor_msgs::PointCloud2>(nh_, cloud_topic_, 10));
+    pnh_.param<std::string>("sync_mode", sync_mode_, "approximate");
+    std::string sync_mode_lower = sync_mode_;
+    std::transform(sync_mode_lower.begin(), sync_mode_lower.end(), sync_mode_lower.begin(),
+                   [](unsigned char c){ return std::tolower(c); });
+    sync_mode_ = sync_mode_lower;
+    use_latest_sync_ = (sync_mode_ == "latest" || sync_mode_ == "latest_pair");
+    pnh_.param<double>("latest_pair_time_threshold", latest_pair_time_threshold_, 0.5);
 
-        // 单话题心跳（不影响同步器），任一话题到达都更新“最近收数时间”
-    image_sub_->registerCallback(boost::bind(&CalibrationValidator::imageHeartbeat, this, _1));
-    cloud_sub_->registerCallback(boost::bind(&CalibrationValidator::cloudHeartbeat, this, _1));
-
-    int queue_size;
-    pnh_.param<int>("queue_size", queue_size, 10);
-    sync_.reset(new Synchronizer(SyncPolicy(queue_size), *image_sub_, *cloud_sub_));
-    sync_->registerCallback(boost::bind(&CalibrationValidator::syncCallback, this, _1, _2));
+    if (use_latest_sync_) {
+        setupLatestSync();
+        ROS_INFO("[CalibrationValidator] Sync mode: latest-pair (threshold %.2fs)",
+                 latest_pair_time_threshold_);
+    } else {
+        setupApproximateSync();
+        ROS_INFO("[CalibrationValidator] Sync mode: approximate time synchronizer");
+    }
 
     fused_image_pub_ = it_.advertise(fused_topic_, 1);
     validation_info_pub_ = nh_.advertise<std_msgs::String>(info_topic_, 1);
@@ -72,6 +78,44 @@ CalibrationValidator::CalibrationValidator(ros::NodeHandle& nh, ros::NodeHandle&
 }
 CalibrationValidator::~CalibrationValidator() {
     cv::destroyAllWindows();
+}
+void CalibrationValidator::setupApproximateSync() {
+    image_raw_sub_.shutdown();
+    cloud_raw_sub_.shutdown();
+
+    image_sub_.reset(new message_filters::Subscriber<sensor_msgs::Image>(nh_, image_topic_, 10));
+    cloud_sub_.reset(new message_filters::Subscriber<sensor_msgs::PointCloud2>(nh_, cloud_topic_, 10));
+
+    // 单话题心跳（不影响同步器），任一话题到达都更新“最近收数时间”
+    image_sub_->registerCallback(boost::bind(&CalibrationValidator::imageHeartbeat, this, _1));
+    cloud_sub_->registerCallback(boost::bind(&CalibrationValidator::cloudHeartbeat, this, _1));
+
+    int queue_size;
+    pnh_.param<int>("queue_size", queue_size, 10);
+    sync_.reset(new Synchronizer(SyncPolicy(queue_size), *image_sub_, *cloud_sub_));
+    sync_->registerCallback(boost::bind(&CalibrationValidator::syncCallback, this, _1, _2));
+}
+void CalibrationValidator::setupLatestSync() {
+    if (sync_) {
+        sync_.reset();
+    }
+    if (image_sub_) {
+        image_sub_.reset();
+    }
+    if (cloud_sub_) {
+        cloud_sub_.reset();
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(data_mutex_);
+        latest_image_msg_.reset();
+        latest_cloud_msg_.reset();
+        latest_image_dirty_ = false;
+        latest_cloud_dirty_ = false;
+    }
+
+    image_raw_sub_ = nh_.subscribe(image_topic_, 10, &CalibrationValidator::imageLatestCallback, this);
+    cloud_raw_sub_ = nh_.subscribe(cloud_topic_, 10, &CalibrationValidator::cloudLatestCallback, this);
 }
 bool CalibrationValidator::loadCalibrationParameters() {
     std::string calib_file;
@@ -193,6 +237,10 @@ void CalibrationValidator::configCallback(lidar_cam_validator::ValidatorConfig& 
         config.show_statistics = true;
         config.enable_downsampling = true;
         config.max_points = 100000;  
+        config.enable_accumulation = false;
+        config.accumulation_time_sec = 0.1;
+        config.accumulation_frames = 3;
+        config.accumulation_max_points = 200000;
         config.filter_by_distance = true;
         config.min_distance = 0.3;
         config.max_distance = 100.0;
@@ -230,32 +278,15 @@ void CalibrationValidator::checkParameterUpdates(const ros::TimerEvent& /*event*
         ROS_INFO("[CalibrationValidator]   Image: %s -> %s", image_topic_.c_str(), new_image_topic.c_str());
         ROS_INFO("[CalibrationValidator]   Cloud: %s -> %s", cloud_topic_.c_str(), new_cloud_topic.c_str());
 
-        {
-            std::lock_guard<std::mutex> lock(data_mutex_);
+        image_topic_ = new_image_topic;
+        cloud_topic_ = new_cloud_topic;
 
-            if (sync_) {
-                sync_.reset();
-            }
-            if (image_sub_) {
-                image_sub_.reset();
-            }
-            if (cloud_sub_) {
-                cloud_sub_.reset();
-            }
-
-            image_topic_ = new_image_topic;
-            cloud_topic_ = new_cloud_topic;
-
-            image_sub_.reset(new message_filters::Subscriber<sensor_msgs::Image>(nh_, image_topic_, 10));
-            cloud_sub_.reset(new message_filters::Subscriber<sensor_msgs::PointCloud2>(nh_, cloud_topic_, 10));
-
-            image_sub_->registerCallback(boost::bind(&CalibrationValidator::imageHeartbeat, this, _1));
-            cloud_sub_->registerCallback(boost::bind(&CalibrationValidator::cloudHeartbeat, this, _1));
-
-            int queue_size;
-            pnh_.param<int>("queue_size", queue_size, 10);
-            sync_.reset(new Synchronizer(SyncPolicy(queue_size), *image_sub_, *cloud_sub_));
-            sync_->registerCallback(boost::bind(&CalibrationValidator::syncCallback, this, _1, _2));
+        if (use_latest_sync_) {
+            image_raw_sub_.shutdown();
+            cloud_raw_sub_.shutdown();
+            setupLatestSync();
+        } else {
+            setupApproximateSync();
         }
 
         topics_changed = true;
@@ -280,7 +311,70 @@ void CalibrationValidator::checkParameterUpdates(const ros::TimerEvent& /*event*
     }
 }
 void CalibrationValidator::syncCallback(const sensor_msgs::ImageConstPtr& image_msg,
-                                       const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
+                                        const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
+    processDataPair(image_msg, cloud_msg);
+}
+void CalibrationValidator::imageLatestCallback(const sensor_msgs::ImageConstPtr& image_msg) {
+    imageHeartbeat(image_msg);
+
+    {
+        std::lock_guard<std::mutex> lock(data_mutex_);
+        latest_image_msg_ = image_msg;
+        latest_image_arrival_ = ros::Time::now();
+        latest_image_dirty_ = true;
+    }
+
+    tryProcessLatestPair();
+}
+void CalibrationValidator::cloudLatestCallback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
+    cloudHeartbeat(cloud_msg);
+
+    {
+        std::lock_guard<std::mutex> lock(data_mutex_);
+        latest_cloud_msg_ = cloud_msg;
+        latest_cloud_arrival_ = ros::Time::now();
+        latest_cloud_dirty_ = true;
+    }
+
+    tryProcessLatestPair();
+}
+void CalibrationValidator::tryProcessLatestPair() {
+    if (!use_latest_sync_) {
+        return;
+    }
+
+    sensor_msgs::ImageConstPtr image_msg;
+    sensor_msgs::PointCloud2ConstPtr cloud_msg;
+    ros::Time image_arrival;
+    ros::Time cloud_arrival;
+
+    {
+        std::lock_guard<std::mutex> lock(data_mutex_);
+        if (!latest_image_msg_ || !latest_cloud_msg_) {
+            return;
+        }
+        if (!latest_image_dirty_ || !latest_cloud_dirty_) {
+            return;
+        }
+
+        image_msg = latest_image_msg_;
+        cloud_msg = latest_cloud_msg_;
+        image_arrival = latest_image_arrival_;
+        cloud_arrival = latest_cloud_arrival_;
+        latest_image_dirty_ = false;
+        latest_cloud_dirty_ = false;
+    }
+
+    double diff = std::abs((image_arrival - cloud_arrival).toSec());
+    if (latest_pair_time_threshold_ > 0.0 && diff > latest_pair_time_threshold_) {
+        ROS_WARN_THROTTLE(2.0, "[CalibrationValidator] Latest pair arrival gap %.3fs (threshold %.3fs)",
+                          diff, latest_pair_time_threshold_);
+    }
+
+    processDataPair(image_msg, cloud_msg);
+}
+void CalibrationValidator::processDataPair(const sensor_msgs::ImageConstPtr& image_msg,
+                                           const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
     data_received_ = true;
     last_data_time_ = ros::Time::now();
 
@@ -318,6 +412,12 @@ void CalibrationValidator::syncCallback(const sensor_msgs::ImageConstPtr& image_
             current_config = config_;
         }
         
+        ros::Time cloud_stamp = cloud_msg->header.stamp;
+        if (cloud_stamp.isZero()) {
+            cloud_stamp = ros::Time::now();
+        }
+        cloud = accumulatePointCloud(cloud, cloud_stamp, current_config);
+
         if (current_config.enable_downsampling && static_cast<int>(cloud->size()) > current_config.max_points) {
             cloud = downsamplePointCloud(cloud, current_config.max_points);
             ROS_DEBUG_THROTTLE(5.0, "[CalibrationValidator] Downsampled point cloud: %u -> %zu points",
@@ -521,6 +621,58 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr CalibrationValidator::downsamplePointCloud(
     random_sample.filter(*downsampled);
 
     return downsampled;
+}
+pcl::PointCloud<pcl::PointXYZ>::Ptr CalibrationValidator::accumulatePointCloud(
+    const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const ros::Time& stamp,
+    const lidar_cam_validator::ValidatorConfig& config) {
+
+    if (!config.enable_accumulation) {
+        std::lock_guard<std::mutex> lock(accumulation_mutex_);
+        cloud_buffer_.clear();
+        return cloud;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(accumulation_mutex_);
+        cloud_buffer_.push_back({cloud, stamp});
+
+        double time_window = std::max(0.0, config.accumulation_time_sec);
+        while (!cloud_buffer_.empty()) {
+            bool removed = false;
+            if (time_window > 0.0) {
+                double age = (cloud_buffer_.back().stamp - cloud_buffer_.front().stamp).toSec();
+                if (age > time_window) {
+                    cloud_buffer_.pop_front();
+                    removed = true;
+                }
+            }
+
+            if (config.accumulation_frames > 0 &&
+                static_cast<int>(cloud_buffer_.size()) > config.accumulation_frames) {
+                cloud_buffer_.pop_front();
+                removed = true;
+            }
+
+            if (!removed) {
+                break;
+            }
+        }
+    }
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr merged(new pcl::PointCloud<pcl::PointXYZ>);
+    {
+        std::lock_guard<std::mutex> lock(accumulation_mutex_);
+        for (const auto& entry : cloud_buffer_) {
+            *merged += *entry.cloud;
+        }
+    }
+
+    if (config.accumulation_max_points > 0 &&
+        static_cast<int>(merged->size()) > config.accumulation_max_points) {
+        merged = downsamplePointCloud(merged, config.accumulation_max_points);
+    }
+
+    return merged;
 }
 ValidationMetrics CalibrationValidator::calculateValidationMetrics(
     const cv::Mat& image,

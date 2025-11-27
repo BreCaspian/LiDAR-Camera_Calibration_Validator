@@ -7,6 +7,8 @@ cloud_topic: "/cloudpoints"
 fused_topic: "/validator/fused_image"
 
 calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
+sync_mode: "approximate"          # approximate | latest
+latest_pair_time_threshold: 0.5   # 秒，latest模式下的到达间隔提示
 
 queue_size: 10
 target_fps: 10.0
@@ -22,6 +24,11 @@ defaults:
 
   enable_downsampling: false
   max_points: 1000000
+
+  enable_accumulation: false
+  accumulation_time_sec: 0.1
+  accumulation_frames: 3
+  accumulation_max_points: 200000
 
   filter_by_distance: true
   min_distance: 0.3

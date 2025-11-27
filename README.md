@@ -232,6 +232,9 @@ vim ~/catkin_ws/src/LiDAR-Camera_Calibration_Validator/config/sample_calibration
 # 指定标定文件
 ./scripts/quick_start.sh -f /path/to/your/calibration.yaml
 
+# latest同步模式（无需外部时间同步）
+./scripts/quick_start.sh --sync-mode latest --latest-threshold 0.2
+
 # 不启动GUI
 ./scripts/quick_start.sh --no-gui
 
@@ -313,6 +316,22 @@ calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
 
 ---
 
+## 🕒 同步策略与非重复雷达支持
+
+### 时间同步模式
+- **`sync_mode=approximate`**（默认）：`message_filters::ApproximateTime`，适用于时间已经对齐的多线/机械雷达。
+- **`sync_mode=latest` / `latest_pair`**：按实际到达时间匹配最近一对消息，不依赖硬件同步。`latest_pair_time_threshold` 控制提示阈值（秒）。
+- 可通过 `launch/validator.launch` 的 `<arg name="sync_mode">`，或一键脚本参数 `./scripts/quick_start.sh --sync-mode latest --latest-threshold 0.3` 即刻切换。
+
+### 点云累积（Livox/非重复雷达）
+Livox Mid-70、Horizon 属于非重复扫描，单帧覆盖稀疏。请：
+1. 使用官方 `livox_ros_driver` + `livox_repub`（或任何转换节点）将 `livox_ros_driver/CustomMsg` 转成 `sensor_msgs/PointCloud2`；
+2. 在 rqt_reconfigure 中开启 **enable_accumulation**，并按需要调节时间窗口、帧数与点数上限（详见下文性能参数组）。
+
+这样即可在没有外部时间同步的条件下完成可视化校验。
+
+---
+
 ## ⚙️ 参数配置 | Parameter Configuration
 
 ### 动态参数调节 (实时生效)
@@ -342,6 +361,10 @@ calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
 | **high_density_threshold** | int | 10000-1000000 | 100000 | 高密度点云阈值 |
 | **batch_size** | int | 1000-50000 | 50000 | 批处理大小 |
 | **num_threads** | int | 1-16 | 4 | 处理线程数 |
+| **enable_accumulation** | bool | - | false | 启用多帧点云累积（Livox推荐） |
+| **accumulation_time_sec** | double | 0.01-1.0 | 0.1 | 累积时间窗口（秒） |
+| **accumulation_frames** | int | 1-20 | 3 | 累积帧上限 |
+| **accumulation_max_points** | int | 1000-2000000 | 200000 | 累积后点数上限（超出自动随机抽样） |
 
 #### 控制参数组 (Control)
 | 参数名 | 类型 | 描述 |

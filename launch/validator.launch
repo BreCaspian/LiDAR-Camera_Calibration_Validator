@@ -3,6 +3,8 @@
     <arg name="calibration_file" default="$(find lidar_cam_validator)/config/sample_calibration.yaml"/>
     <arg name="image_topic" default="/image_raw"/>
     <arg name="cloud_topic" default="/cloudpoints"/>
+    <arg name="sync_mode" default="approximate"/>
+    <arg name="latest_pair_time_threshold" default="0.5"/>
     <arg name="gui" default="true"/>
 
     <rosparam file="$(find lidar_cam_validator)/config/settings.yaml" command="load"/>
@@ -11,6 +13,8 @@
         <param name="calibration_file" value="$(arg calibration_file)"/>
         <param name="image_topic" value="$(arg image_topic)"/>
         <param name="cloud_topic" value="$(arg cloud_topic)"/>
+        <param name="sync_mode" value="$(arg sync_mode)"/>
+        <param name="latest_pair_time_threshold" value="$(arg latest_pair_time_threshold)"/>
     </node>
 
     <node name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure"

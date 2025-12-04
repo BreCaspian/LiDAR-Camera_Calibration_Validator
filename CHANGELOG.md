@@ -3,6 +3,17 @@
 All notable changes to the LiDAR-Camera Calibration Validator project will be documented in this file.
 
 ---
+## [4.0.0] - 2025-11-27
+### Added
+- **支持 Livox 系列激光雷达**：在此前版本无法适配非重复式激光雷达的基础上，新增对 Livox 混合固态式与非重复式雷达的完整支持。
+- **去除外部时间同步依赖**：无需外部时间同步即可完成可视化校验，大幅简化部署流程。
+
+### Changed
+- 通用性增强：v4.0.0 现已适用于多类型激光雷达（混合固态式、非重复式等），进一步提升工具普适性与稳定性。
+
+### Notes
+- 该版本显著提升对异构激光雷达的兼容能力，适合更多实际标定/验证场景使用。
+
 ## [3.3.0] - 2025-11-10
 
 ### Fixed

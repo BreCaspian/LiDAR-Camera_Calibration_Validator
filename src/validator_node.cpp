@@ -19,7 +19,7 @@ void printStartupInfo() {
     ROS_INFO("========================================");
     ROS_INFO("  LiDAR-Camera Calibration Validator   ");
     ROS_INFO("========================================");
-    ROS_INFO("Version: 3.1.0");
+    ROS_INFO("Version: 4.0.0");
     ROS_INFO("Based on ROBOMASTTER-HORIZON-LiDAR-2025 PointCloudVisualizer");
     ROS_INFO(" ");
     ROS_INFO("Features:");

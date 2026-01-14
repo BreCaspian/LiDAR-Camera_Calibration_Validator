@@ -1,43 +1,41 @@
-<h1 align="center">🚀 LiDAR-Camera Calibration Validator</h1>
+<h1 align="center">LiDAR-Camera Calibration Validator</h1>
 
-一个用于验证激光雷达-相机联合标定质量的高性能ROS包，提供实时可视化、定量评价指标和精确的投影计算。  
+<p align="center">
+  <img src="https://img.shields.io/badge/ROS-Noetic-22314E" alt="ROS Noetic"/>
+  <img src="https://img.shields.io/badge/Ubuntu-20.04-E95420" alt="Ubuntu 20.04"/>
+  <img src="https://img.shields.io/badge/C%2B%2B-17-00599C" alt="C++17"/>
+  <img src="https://img.shields.io/badge/License-GPL--3.0--or--later-3DA639" alt="GPL-3.0-or-later"/>
+  <img src="https://img.shields.io/badge/Version-4.0.0-2F80ED" alt="Version 4.0.0"/>
+</p>
 
-A high-performance ROS package for validating LiDAR-camera calibration quality through real-time visualization, quantitative metrics, and precise projection calculations.
+面向 LiDAR-相机联合标定结果的可视化校验工具，基于 ROS 实时同步图像与点云，支持畸变校正投影、边缘重合度与归一化互信息评估，并输出融合图像与指标统计。如需英文版，请参考 [README_EN.md](README_EN.md)
 
 ---
 
-## ✨ 主要特性 | Key Features
+## 主要特性
 
-### 🌟 核心功能
-- **高精度投影**: 包含完整畸变校正的精确点云投影计算
+- 高精度投影：完整畸变校正的点云投影计算
+- 定量评价指标：边缘重合度与归一化互信息
+- 实时参数调节：基于 dynamic_reconfigure 的在线参数调整
+- 边缘检测分析：Canny 边缘与重叠分析
+- 性能监控：实时 FPS 与处理耗时统计
+- 多雷达兼容：支持混合固态式与非重复扫描雷达
 
-- **定量评价指标**: 边缘重叠度、归一化互信息等多种质量评价指标
+---
 
-- **实时参数调节**: 通过动态重配置进行无重启参数调整
-
-- **边缘检测分析**: Canny边缘检测和重叠分析
-
-- **性能监控**: 实时FPS、处理时间等性能统计
-
-- **广泛兼容**: 支持混合固态式、非重复式等多类型激光雷达
-
-  ---
-## 🎨 效果展示 | Effect Showcase
-
-
+## 效果展示
 
 <p align="center">
   <img src="Doc/LCCV.png" alt="LCCV Overview" width="100%"/>
 </p>
 
 <p align="center">
-  <em>图 1：LiDAR-Camera Calibration Validator 系统概览 (LCCV Overview)</em>
+  <em>图 1：LiDAR-Camera Calibration Validator 系统概览</em>
 </p>
-
 
 ---
 
-## 📊 系统流程图 | System Flow
+## 系统流程
 
 ```mermaid
 %%{init: {"themeVariables": {
@@ -47,7 +45,6 @@ A high-performance ROS package for validating LiDAR-camera calibration quality t
 }}}%%
 
 graph TB
-    %% 节点样式
     classDef input   fill:#4DB6AC,stroke:#00695C,stroke-width:2px,color:#fff,font-weight:bold
     classDef config  fill:#64B5F6,stroke:#1E88E5,stroke-width:2px,color:#fff,font-weight:bold
     classDef sync    fill:#BA68C8,stroke:#6A1B9A,stroke-width:2px,color:#fff,font-weight:bold
@@ -55,50 +52,43 @@ graph TB
     classDef metrics fill:#FF8A65,stroke:#D84315,stroke-width:2px,color:#fff,font-weight:bold
     classDef output  fill:#90A4AE,stroke:#37474F,stroke-width:2px,color:#fff,font-weight:bold
 
-    %% 输入层
     subgraph 输入层
-        A["相机图像 -- /image_topic"]
-        B["LiDAR 点云 -- /cloud_topic"]
+        A["相机图像"]
+        B["LiDAR 点云"]
     end
     class A,B input
 
-    %% 配置层
     subgraph 配置层
-        C["标定参数 -- K / C / E"]
-        D["动态参数 -- Validator.cfg"]
+        C["标定参数"]
+        D["动态参数"]
     end
     class C,D config
 
-    %% 同步层
     subgraph 同步层
-        E["时间同步 -- ApproximateTime"]
+        E["时间同步 ApproximateTime Latest"]
     end
     class E sync
 
-    %% 处理层
     subgraph 处理层
-        F["点云预处理 -- 降采样/过滤"]
-        G["点云投影 -- 投影到图像平面"]
-        H["可视化叠加 -- 统计/边缘/色条"]
+        F["点云预处理"]
+        G["点云投影"]
+        H["可视化叠加"]
     end
     class F,G,H process
 
-    %% 指标层
     subgraph 指标层
-        I["质量指标 -- EdgeOverlap/NMI"]
-        J["性能统计 -- FPS/延迟"]
+        I["质量指标"]
+        J["性能统计"]
     end
     class I,J metrics
 
-    %% 输出层
     subgraph 输出层
-        K["ROS 发布 -- /fused_image"]
-        L["ROS 发布 -- /validation_info"]
-        M["GUI 显示 -- OpenCV 窗口"]
+        K["ROS 发布"]
+        L["ROS 发布"]
+        M["GUI 显示"]
     end
     class K,L,M output
 
-    %% 数据流
     A --> E
     B --> E
     C --> G
@@ -111,12 +101,14 @@ graph TB
     H --> J
     J --> L
 ```
+
 ---
-## 🔍 推荐标定工具 | Recommended Calibration Tools
 
-在使用本验证工具前，建议先完成 **相机标定** 与 **激光雷达-相机联合标定**，以保证结果的准确性。
+## 推荐标定工具
 
-### 📷 相机标定 (Camera Calibration)
+在使用本工具前，请先完成相机标定与联合标定。
+
+### 相机标定
 
 - [ROS 官方相机标定工具](https://wiki.ros.org/camera_calibration)  提供单目/双目相机标定，输出相机内参与畸变参数。
 
@@ -126,12 +118,12 @@ graph TB
   <img src="Doc/ROS-Calibration.png" alt="ROS Camera Calibration" width="90%"/>
 </p>
 <p align="center">
-  <em>图 2：ROS 相机标定示例 (Camera Calibration Example)</em>
+  <em>图 2： ROS 相机标定示例</em>
 </p>
 
 ---
 
-### 🔗 激光雷达-相机联合标定 (LiDAR-Camera Extrinsic Calibration)
+### 激光雷达-相机外参标定
 
 - [direct_visual_lidar_calibration (GitHub)](https://github.com/koide3/direct_visual_lidar_calibration)  基于视觉与点云的高精度标定工具。
   
@@ -141,154 +133,128 @@ graph TB
   <img src="Doc/LiDAR-Camera-Calibration.png" alt="LiDAR-Camera Calibration" width="90%"/>
 </p>
 <p align="center">
-  <em>图 3：激光雷达-相机联合标定效果 (LiDAR-Camera Calibration Result)</em>
+  <em>图 3：联合标定效果</em>
 </p>
 
 <p align="center">
-  <img src="Doc/LiDAR-Camera-Calibration_2.png" alt="LiDAR-Camera Calibration Result" width="90%"/>
+  <img src="Doc/LiDAR-Camera-Calibration_2.png" alt="LiDAR-Camera Calibration Process" width="90%"/>
 </p>
 <p align="center">
-  <em>图 4：激光雷达-相机联合标定过程 (LiDAR-Camera Calibration Process)</em>
+  <em>图 4：激光雷达与相机联合标定过程</em>
 </p>
 
 ---
 
+## 系统要求
 
-## 🛠️ 系统要求 | System Requirements
+### 必需依赖
 
-### 必需依赖 | Required Dependencies
+- ROS Noetic（Ubuntu 20.04）
+- OpenCV 4.x
+- PCL 1.10+
+- Eigen3
+- dynamic_reconfigure
 
-#### 核心依赖
-- **ROS Noetic** - Ubuntu 20.04
-- **OpenCV 4.x** 
-- **PCL 1.10+** 
-- **Eigen3**
-- **dynamic_reconfigure** 
+### GUI 依赖（可选）
 
-#### GUI依赖 (可选)
-- **python3-rospkg** 
+- python3-rospkg
+- ros-noetic-rqt-reconfigure
+- ros-noetic-rqt-gui
 
-- **ros-noetic-rqt-reconfigure**
+---
 
-- **ros-noetic-rqt-gui** 
+## 安装
 
-  ---
+### 克隆项目
 
-## 📦 安装指南 | Installation Guide
-
-### 一键安装 
-
-#### 1. 克隆项目
 ```bash
 mkdir -p ~/catkin_ws/src
-
 cd ~/catkin_ws/src
 git clone https://github.com/BreCaspian/LiDAR-Camera_Calibration_Validator.git
 cd LiDAR-Camera_Calibration_Validator
 ```
 
-#### 2. 检查依赖状态
+### 检查依赖
+
 ```bash
 ./scripts/quick_start.sh --check-deps
 ```
 
-#### 3. 根据提示安装依赖
-```bash
-# 如果有缺失依赖，按照脚本提示安装 (可选GUI依赖如果实在装不上可以跳过)
-```
 ---
-## 🚀 快速开始 | Quick Start
 
-### 一键启动 (推荐)
+## 快速开始
 
-#### 快速启动使用
+### 一键启动
+
 ```bash
 # 进入项目目录
 cd ~/catkin_ws/src/LiDAR-Camera_Calibration_Validator
 
-# 编辑配置标定参数
+# 编辑标定参数
 vim ~/catkin_ws/src/LiDAR-Camera_Calibration_Validator/config/sample_calibration.yaml
 
-# 分别启动 LiDAR 和 Camera ROS驱动 发布相关话题
+# 启动 LiDAR 与 Camera 驱动，发布话题
 
-# 一键启动（将会自动编译、启动验证器、参数GUI、可视化GUI）
+# 一键启动（自动编译并启动验证器）
 ./scripts/quick_start.sh -i /camera/image_raw -c /velodyne_points
-# 适用于 CH128X 等混合固态式激光雷达
 
+# latest 同步模式示例（适用于非重复扫描雷达）
 ./scripts/quick_start.sh --sync-mode latest --latest-threshold 0.2 \
     -i /galaxy_camera/image_raw -c /livox/lidar
-# 适用于 Livox Mid70 等非重复式激光雷达
-
-# 请替换为您的 相机图像话题 /camera/image_raw 和 点云话题 /velodyne_points 
 ```
----
 
-## 高级选项 | Advanced Options
+### 高级选项
+
 ```bash
-# 检查依赖状态
 ./scripts/quick_start.sh --check-deps
-
-# 运行系统测试
 ./scripts/quick_start.sh --test
-
-# 强制重新编译
 ./scripts/quick_start.sh --force-compile
-
-# 指定话题启动
 ./scripts/quick_start.sh -i /camera/image_raw -c /velodyne_points
-
-# 指定标定文件
 ./scripts/quick_start.sh -f /path/to/your/calibration.yaml
-
-# latest同步模式（无需外部时间同步）
 ./scripts/quick_start.sh --sync-mode latest --latest-threshold 0.2
-
-# 不启动GUI
 ./scripts/quick_start.sh --no-gui
-
-# 查看完整帮助
 ./scripts/quick_start.sh --help
 ```
 
-### 1. 手动启动 (高级用户操作选项)
+---
 
-#### 启动验证器
+## 手动启动
+
 ```bash
-# 设置ROS环境
 source /opt/ros/noetic/setup.bash
 source ~/catkin_ws/devel/setup.bash
 
-# 启动验证器
 roslaunch lidar_cam_validator validator.launch
 
-# 启动参数调节界面 (新终端)
+# 新终端启动参数调节界面
 rosrun rqt_reconfigure rqt_reconfigure
 ```
 
-### 2. 配置标定参数
+---
 
-#### 编辑标定文件
+## 标定参数配置
+
+编辑标定文件：
+
 ```bash
 vim ~/catkin_ws/src/LiDAR-Camera_Calibration_Validator/config/sample_calibration.yaml
 ```
 
-#### 标定参数格式
+格式示例：
+
 ```yaml
-# 相机内参矩阵 (3x3)
 K_0: !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
    data: [fx, 0, cx, 0, fy, cy, 0, 0, 1]
 
-# 相机畸变系数 (1x5) - 支持径向和切向畸变校正
 C_0: !!opencv-matrix
    rows: 1
    cols: 5
    dt: d
    data: [k1, k2, p1, p2, k3]
 
-# 外参矩阵: 激光雷达 -> 相机 (4x4) (若是 相机 -> 雷达，请务必求逆！！！)
 E_0: !!opencv-matrix
    rows: 4
    cols: 4
@@ -299,55 +265,56 @@ E_0: !!opencv-matrix
           0,   0,   0,   1]
 ```
 
-### 3. 配置话题设置
+---
 
-#### 方法一：命令行指定 (推荐)
+## 话题配置
+
+### 命令行指定（推荐）
+
 ```bash
 ./scripts/quick_start.sh -i /your_camera/image_raw -c /your_lidar/cloudpoints
 ```
 
-#### 方法二：编辑配置文件
+### 配置文件修改
+
 ```bash
 vim ~/catkin_ws/src/LiDAR-Camera_Calibration_Validator/config/settings.yaml
 ```
 
 ```yaml
-image_topic: "/camera/image_raw"    # 替换为您的相机图像话题
-cloud_topic: "/cloudpoints"        # 替换为您的点云话题
+image_topic: "/camera/image_raw"
+cloud_topic: "/cloudpoints"
 
 fused_topic: "/validator/fused_image"
 info_topic: "/validator/validation_info"
 
 calibration_file: "$(find lidar_cam_validator)/config/sample_calibration.yaml"
-
 ```
 
 ---
 
-## 🕒 同步策略与非重复雷达支持
+## 同步策略与非重复雷达支持
 
 ### 时间同步模式
-- **`sync_mode=approximate`**（默认）：`message_filters::ApproximateTime`，适用于时间已经对齐的多线/机械雷达。
-- **`sync_mode=latest` / `latest_pair`**：按实际到达时间匹配最近一对消息，不依赖硬件同步。`latest_pair_time_threshold` 控制提示阈值（秒）。
-- 可通过 `launch/validator.launch` 的 `<arg name="sync_mode">`，或一键脚本参数 `./scripts/quick_start.sh --sync-mode latest --latest-threshold 0.3` 即刻切换。
 
-### 点云累积（Livox/非重复雷达）
-Livox Mid-70、Horizon 属于非重复扫描，单帧覆盖稀疏。请：
-1. 使用官方 `livox_ros_driver` + `livox_repub`（或任何转换节点）将 `livox_ros_driver/CustomMsg` 转成 `sensor_msgs/PointCloud2`；
-2. 在 rqt_reconfigure 中开启 **enable_accumulation**，并按需要调节时间窗口、帧数与点数上限（详见下文性能参数组）。
+- sync_mode=approximate（默认）：ApproximateTime，同步时间较接近的图像与点云。
+- sync_mode=latest 或 latest_pair：按到达时间匹配最近一对消息，不依赖硬件同步。
+- latest_pair_time_threshold：latest 模式下到达间隔提示阈值（秒）。
 
-这样即可在没有外部时间同步的条件下完成可视化校验。
+### 点云累积（Livox 非重复扫描雷达）
 
+Livox Mid-70、Horizon 单帧稀疏，建议启用累积：
+
+1. 使用 livox_ros_driver + livox_repub（或其他转换节点）将 CustomMsg 转换为 PointCloud2。
+2. 在 rqt_reconfigure 中开启 enable_accumulation，并按需调整累积窗口、帧数与点数上限。
 
 <p align="center">
-  <img src="Doc/Weixin Image_20251127171946_11_1.png" 
-       alt="Livox Mid70-1" width="45%" />
-  <img src="Doc/Weixin Image_20251127171953_12_1.png" 
-       alt="Livox Mid70-2" width="45%" />
+  <img src="Doc/Weixin Image_20251127171946_11_1.png" alt="Livox Mid70-1" width="45%" />
+  <img src="Doc/Weixin Image_20251127171953_12_1.png" alt="Livox Mid70-2" width="45%" />
 </p>
 
 <p align="center">
-  <em>图 5：非重复式激光雷达 Livox Mid70 效果</em>
+  <em>图 5：LIVOX 非重复扫描雷达示例</em>
 </p>
 
 > [!TIP]
@@ -355,182 +322,180 @@ Livox Mid-70、Horizon 属于非重复扫描，单帧覆盖稀疏。请：
 >
 > 1.为什么“随着目标距离增加点云缝隙吻合的更好”？
 >
->     这是正常的物理现象。
+>     这是正常的物理现象
 >
->     原因——视差： 在近距离时，相机和雷达之间的安装位置差异（平移向量）引起的视差非常明显。
+>     原因——视差：在近距离时，相机和雷达之间的安装位置差异（平移向量）引起的视差非常明显
 >
->     一点点标定误差在图像上都会产生巨大的像素偏移。
+>     一点点标定误差在图像上都会产生巨大的像素偏移
 >
->     随着距离增加，平移带来的视差影响迅速减小，旋转误差占主导地位。
+>     随着距离增加，平移带来的视差影响迅速减小，旋转误差占主导地位
 >
->     推荐评估观测距离为 8-10 米 (最少 5 米)
->    
->  2.为什么结果一直显示 "Poor"？
-> 
->     评价方法目前不具有自适应性，主要功能是为开发者提供可视化。
+>     推荐评估观测距离为 8-10 米（最少 5 米）
+>
+> 2.为什么结果一直显示 "Poor"？
+>
+>     评价方法目前不具有自适应性，主要功能是为开发者提供可视化
 >
 >     远处物体轮廓与点云边缘重合度在视觉上是合格的，就可以认为标定结果良好可用
 >
 >     Mid-70 的花瓣状扫描不如传统旋转雷达那样规则，可能会干扰依赖密集扫描线的评估算法
 >
 >     Livox 非重复扫描导致前景近距离点稀疏，本身也会让边缘匹配度低，所以 edge_overlap_score 更容易偏小
-> 
+>
 >     不要过分迷信自动化工具的评分
 
-
-
 ---
 
-## ⚙️ 参数配置 | Parameter Configuration
+## 动态参数说明
 
-### 动态参数调节 (实时生效)
+使用 rqt_reconfigure 进行实时调节，修改立即生效，无需重启。
 
-使用rqt_reconfigure进行实时参数调节，所有修改立即生效，无需重启节点：
+### Visualization
 
-#### 可视化参数组 (Visualization)
-| 参数名 | 类型 | 范围 | 默认值 | 描述 |
+| 参数名 | 类型 | 范围 | 默认值 | 说明 |
 |--------|------|------|--------|------|
-| **point_size** | int | 1-8 | 3 | 点云显示大小 (像素) |
-| **enable_depth_color** | bool | - | true | 启用深度颜色编码 |
-| **show_statistics** | bool | - | true | 显示统计信息 |
-| **alpha** | double | 0.0-1.0 | 0.7 | 图像透明度 |
+| point_size | int | 1-8 | 3 | 点大小（像素） |
+| min_depth | double | 0.1-5.0 | 0.5 | 颜色映射最小深度（米） |
+| max_depth | double | 5.0-200.0 | 50.0 | 颜色映射最大深度（米） |
+| show_statistics | bool | - | true | 显示统计信息 |
+| show_edge_overlay | bool | - | false | 显示边缘叠加 |
+| show_depth_colorbar | bool | - | true | 显示深度色条 |
 
-#### 处理参数组 (Processing)
-| 参数名 | 类型 | 范围 | 默认值 | 描述 |
+### Performance
+
+| 参数名 | 类型 | 范围 | 默认值 | 说明 |
 |--------|------|------|--------|------|
-| **enable_edge_detection** | bool | - | true | 启用边缘检测分析 |
-| **enable_metrics** | bool | - | true | 启用详细评价指标 |
-| **enable_distortion_correction** | bool | - | true | 启用畸变校正 |
-| **depth_filter_threshold** | double | 0.01-1.0 | 0.01 | 深度过滤阈值 (米) |
+| enable_downsampling | bool | - | false | 启用下采样 |
+| max_points | int | 10000-1000000 | 1000000 | 最大处理点数 |
+| enable_accumulation | bool | - | false | 启用多帧累积 |
+| accumulation_time_sec | double | 0.01-1.0 | 0.1 | 累积时间窗口（秒） |
+| accumulation_frames | int | 1-20 | 3 | 累积帧上限 |
+| accumulation_max_points | int | 1000-2000000 | 200000 | 累积后点数上限 |
 
-#### 性能参数组 (Performance)
-| 参数名 | 类型 | 范围 | 默认值 | 描述 |
+### Filtering
+
+| 参数名 | 类型 | 范围 | 默认值 | 说明 |
 |--------|------|------|--------|------|
-| **enable_parallel_processing** | bool | - | true | 启用并行处理 |
-| **high_density_threshold** | int | 10000-1000000 | 100000 | 高密度点云阈值 |
-| **batch_size** | int | 1000-50000 | 50000 | 批处理大小 |
-| **num_threads** | int | 1-16 | 4 | 处理线程数 |
-| **enable_accumulation** | bool | - | false | 启用多帧点云累积（Livox推荐） |
-| **accumulation_time_sec** | double | 0.01-1.0 | 0.1 | 累积时间窗口（秒） |
-| **accumulation_frames** | int | 1-20 | 3 | 累积帧上限 |
-| **accumulation_max_points** | int | 1000-2000000 | 200000 | 累积后点数上限（超出自动随机抽样） |
+| filter_by_distance | bool | - | true | 启用距离过滤 |
+| min_distance | double | 0.1-2.0 | 0.3 | 最近距离（米） |
+| max_distance | double | 10.0-200.0 | 100.0 | 最远距离（米） |
 
-#### 控制参数组 (Control)
-| 参数名 | 类型 | 描述 |
+### Metrics
+
+| 参数名 | 类型 | 范围 | 默认值 | 说明 |
+|--------|------|------|--------|------|
+| enable_metrics | bool | - | true | 启用指标计算 |
+| edge_threshold | int | 10-200 | 50 | Canny 阈值 |
+| edge_distance_threshold | double | 1.0-20.0 | 5.0 | 边缘距离阈值（像素） |
+| min_points_for_nmi | int | 50-1000 | 100 | 计算 NMI 的最小投影点数 |
+
+### Control
+
+| 参数名 | 类型 | 说明 |
 |--------|------|------|
-| **reset_to_defaults** | bool | 一键重置所有参数到默认值 |
+| reset_to_defaults | bool | 一键恢复默认参数 |
 
 ---
 
-## 系统输出 | System Output
+## 输出
 
-### 可视化输出
+### 可视化窗口
 
-#### 主显示窗口
-- **融合图像**: 点云投影叠加到相机图像
-- **深度颜色编码**: 彩色深度映射 (红色=近，蓝色=远)
-- **颜色条**: 右上角深度范围指示器
-- **统计信息**: 左上角实时处理统计
+- 融合图像：点云投影叠加到相机图像
+- 深度颜色编码：近红远蓝的深度映射
+- 颜色条：右上角深度范围指示
+- 统计信息：左上角处理与指标统计
 
 <p align="center">
   <img src="Doc/VisualizationGUI.png" alt="Visualization GUI" width="85%"/>
 </p>
 <p align="center">
-  <em>图 6：验证器可视化界面 (Visualization GUI Overview)</em>
+  <em>图 6：可视化界面</em>
 </p>
 
-#### 界面元素
-- **点云可视化**: 3像素默认点大小，清晰可见
-- **边缘检测**: Canny边缘检测叠加显示
-- **性能监控**: FPS、处理时间、点云数量
-- **质量指标**: 边缘重合度、归一化互信息
+### ROS 话题
 
-### ROS话题输出
-- **`/validator/fused_image`**: 融合后的图像 (sensor_msgs/Image)
-- **`/validator/validation_info`**: 验证信息和统计数据
-- **`/validator_node/parameter_descriptions`**: 发布参数描述信息
-- **`/validator_node/parameter_updates`**: 发布参数变更事件
-
+- /validator/fused_image：融合图像（sensor_msgs/Image）
+- /validator/validation_info：校验信息 JSON（std_msgs/String）
+- /validator_node/parameter_descriptions：参数描述
+- /validator_node/parameter_updates：参数更新事件
 
 ---
 
-## 📝 开发指南 | Development Guide
+## 项目结构
 
 ```
 LiDAR-Camera_Calibration_Validator/
-├── 📁 include/
-│   └── 📄 calibration_validator.h      # 核心功能类的头文件定义
-├── 📁 src/
-│   ├── 📄 calibration_validator.cpp    # 核心算法和功能的实现
-│   └── 📄 validator_node.cpp          # ROS 节点入口，负责数据订阅与发布
-├── 📁 scripts/
-│   └── 🚀 quick_start.sh              # 一键启动与测试脚本
-├── 📁 config/
-│   ├── ⚙️ Validator.cfg               # 动态调参配置文件 (rqt_reconfigure)
-│   ├── 📝 sample_calibration.yaml    # 标定参数示例文件 (Extrinsics)
-│   └── 🔧 settings.yaml              # 话题名称与框架参数设置
-├── 📁 launch/
-│   └── ▶️ validator.launch           # ROS 启动文件，集成所有节点和配置
-├── 📖 README.md                       # 项目说明文档
-└── 📜 CMakeLists.txt                 # CMake 构建配置文件
+├── include/
+│   └── calibration_validator.h
+├── src/
+│   ├── calibration_validator.cpp
+│   └── validator_node.cpp
+├── scripts/
+│   └── quick_start.sh
+├── config/
+│   ├── Validator.cfg
+│   ├── sample_calibration.yaml
+│   └── settings.yaml
+├── launch/
+│   └── validator.launch
+├── README.md
+└── CMakeLists.txt
 ```
+
 ---
 
-## 📐 数学原理 | Mathematical Foundations
+## 数学原理
 
 - 本节简述该工具相关数学原理，由于该工具侧重于实用，故只简单给出相关数学定义与数学表达，以便交流讨论
 - 个人数学功底一般，若有问题，欢迎批评指正
 - [数学原理简述 Wiki](https://github.com/BreCaspian/LiDAR-Camera_Calibration_Validator/wiki)
 
+
 ---
 
-## 🔧 贡献指南 | Contributing
+## 贡献指南
 
-1. Fork 项目到您的 GitHub 账户
-2. 创建功能分支: `git checkout -b feature/your-feature`
-3. 提交更改: `git commit -am 'Add some feature'`
-4. 推送分支: `git push origin feature/your-feature`
+1. Fork 项目到个人仓库
+2. 创建功能分支：`git checkout -b feature/your-feature`
+3. 提交更改：`git commit -am 'Add some feature'`
+4. 推送分支：`git push origin feature/your-feature`
 5. 创建 Pull Request
 
 ---
 
-## ✅ TODO List
+## TODO
 
-* [x] 支持 Livox 系列激光雷达
-* [x] 去除外部时间同步依赖
-* [ ] 支持 ROS2
-* [ ] 支持 ROS-Docker
-* [ ] 支持 ROS2-Docker
-
----
-
-## 📄 许可证 | License
-
-本项目采用 GNU GPL v3 或更高版本 (GPL-3.0-or-later) 许可 - 详见 [LICENSE](LICENSE)
-
-This project is licensed under the GNU General Public License v3.0 or later (GPL-3.0-or-later) - see the [LICENSE](LICENSE) file for details.
-
-### 📋 您的义务
-
-- **Copyleft保护**：基于本项目的衍生作品必须使用相同许可证
-
-- **源码公开**：分发时必须提供源代码或提供获取源码的方式
-
-- **许可证保留**：必须保留原始许可证和版权声明
-
-- **修改声明**：必须明确标注对原始代码的修改
-
-  ---
-
-## 🤝 致谢 | Acknowledgments
-
-- ROS社区提供的优秀框架
-- OpenCV和PCL库的强大支持
-- Dr. Kenji Koide 开源联合标定工具
+- [x] 支持 Livox 系列激光雷达
+- [x] 去除外部时间同步依赖
+- [ ] 支持 ROS2
+- [ ] 支持 ROS-Docker
+- [ ] 支持 ROS2-Docker
 
 ---
 
-## 📮 联系方式 | Contact
+## 许可证
+
+本项目采用 GPL-3.0-or-later 许可，详见 [LICENSE](LICENSE)。
+
+### 您的义务
+
+- Copyleft 保护：衍生作品必须使用相同许可证
+- 源码公开：分发时需提供源码或获取方式
+- 许可证保留：保留原始许可与版权声明
+- 修改声明：明确标注对原始代码的修改
+
+---
+
+## 致谢
+
+- ROS 社区
+- OpenCV 与 PCL
+- Dr. Kenji Koide 的联合标定工具
+
+---
+
+## 联系方式
 
 如有问题或建议，请通过以下方式联系：
 
@@ -543,6 +508,3 @@ This project is licensed under the GNU General Public License v3.0 or later (GPL
 <p align="center">
   <b>LiDAR-Camera Calibration Validator v4.0.0</b> - 激光雷达-相机联合标定结果快速验证！ 🚀
 </p>
-
-
-

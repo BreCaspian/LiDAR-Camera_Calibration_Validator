@@ -26,7 +26,7 @@
 ## 效果展示
 
 <p align="center">
-  <img src="Doc/LCCV.png" alt="LCCV Overview" width="100%"/>
+  <img src="docs/LCCV.png" alt="LCCV Overview" width="100%"/>
 </p>
 
 <p align="center">
@@ -115,7 +115,7 @@ graph TB
 - [ROS 相机标定详细教程](https://blog.csdn.net/2401_88008105/article/details/152665216?spm=1001.2014.3001.5506) 华北理工大学-HORIZON战队-雷达组 ROS 相机标定教程。
 
 <p align="center">
-  <img src="Doc/ROS-Calibration.png" alt="ROS Camera Calibration" width="90%"/>
+  <img src="docs/ROS-Calibration.png" alt="ROS Camera Calibration" width="90%"/>
 </p>
 <p align="center">
   <em>图 2： ROS 相机标定示例</em>
@@ -130,14 +130,14 @@ graph TB
 - [官方教程 | Official Tutorial](https://koide3.github.io/direct_visual_lidar_calibration/)  包含安装、数据准备、运行示例等详细步骤。
 
 <p align="center">
-  <img src="Doc/LiDAR-Camera-Calibration.png" alt="LiDAR-Camera Calibration" width="90%"/>
+  <img src="docs/LiDAR-Camera-Calibration.png" alt="LiDAR-Camera Calibration" width="90%"/>
 </p>
 <p align="center">
   <em>图 3：联合标定效果</em>
 </p>
 
 <p align="center">
-  <img src="Doc/LiDAR-Camera-Calibration_2.png" alt="LiDAR-Camera Calibration Process" width="90%"/>
+  <img src="docs/LiDAR-Camera-Calibration_2.png" alt="LiDAR-Camera Calibration Process" width="90%"/>
 </p>
 <p align="center">
   <em>图 4：激光雷达与相机联合标定过程</em>
@@ -309,8 +309,8 @@ Livox Mid-70、Horizon 单帧稀疏，建议启用累积：
 2. 在 rqt_reconfigure 中开启 enable_accumulation，并按需调整累积窗口、帧数与点数上限。
 
 <p align="center">
-  <img src="Doc/Weixin Image_20251127171946_11_1.png" alt="Livox Mid70-1" width="45%" />
-  <img src="Doc/Weixin Image_20251127171953_12_1.png" alt="Livox Mid70-2" width="45%" />
+  <img src="docs/Weixin Image_20251127171946_11_1.png" alt="Livox Mid70-1" width="45%" />
+  <img src="docs/Weixin Image_20251127171953_12_1.png" alt="Livox Mid70-2" width="45%" />
 </p>
 
 <p align="center">
@@ -407,7 +407,7 @@ Livox Mid-70、Horizon 单帧稀疏，建议启用累积：
 - 统计信息：左上角处理与指标统计
 
 <p align="center">
-  <img src="Doc/VisualizationGUI.png" alt="Visualization GUI" width="85%"/>
+  <img src="docs/VisualizationGUI.png" alt="Visualization GUI" width="85%"/>
 </p>
 <p align="center">
   <em>图 6：可视化界面</em>

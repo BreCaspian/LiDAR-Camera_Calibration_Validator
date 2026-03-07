@@ -26,7 +26,7 @@ A visualization and validation tool for LiDAR-camera calibration, providing real
 ## Showcase
 
 <p align="center">
-  <img src="Doc/LCCV.png" alt="LCCV Overview" width="100%"/>
+  <img src="docs/LCCV.png" alt="LCCV Overview" width="100%"/>
 </p>
 
 <p align="center">
@@ -114,7 +114,7 @@ Please complete camera calibration and LiDAR-camera extrinsic calibration first.
 - [Camera calibration tutorial](https://blog.csdn.net/2401_88008105/article/details/152665216?spm=1001.2014.3001.5506)
 
 <p align="center">
-  <img src="Doc/ROS-Calibration.png" alt="ROS Camera Calibration" width="90%"/>
+  <img src="docs/ROS-Calibration.png" alt="ROS Camera Calibration" width="90%"/>
 </p>
 <p align="center">
   <em>Figure 2: Camera calibration example</em>
@@ -128,14 +128,14 @@ Please complete camera calibration and LiDAR-camera extrinsic calibration first.
 - [Official tutorial](https://koide3.github.io/direct_visual_lidar_calibration/)
 
 <p align="center">
-  <img src="Doc/LiDAR-Camera-Calibration.png" alt="LiDAR-Camera Calibration" width="90%"/>
+  <img src="docs/LiDAR-Camera-Calibration.png" alt="LiDAR-Camera Calibration" width="90%"/>
 </p>
 <p align="center">
   <em>Figure 3: Calibration result</em>
 </p>
 
 <p align="center">
-  <img src="Doc/LiDAR-Camera-Calibration_2.png" alt="LiDAR-Camera Calibration Process" width="90%"/>
+  <img src="docs/LiDAR-Camera-Calibration_2.png" alt="LiDAR-Camera Calibration Process" width="90%"/>
 </p>
 <p align="center">
   <em>Figure 4: Calibration process</em>
@@ -296,8 +296,8 @@ For sparse single frames:
 2. Enable enable_accumulation in rqt_reconfigure and tune time window, frames, and max points.
 
 <p align="center">
-  <img src="Doc/Weixin Image_20251127171946_11_1.png" alt="Livox Mid70-1" width="45%" />
-  <img src="Doc/Weixin Image_20251127171953_12_1.png" alt="Livox Mid70-2" width="45%" />
+  <img src="docs/Weixin Image_20251127171946_11_1.png" alt="Livox Mid70-1" width="45%" />
+  <img src="docs/Weixin Image_20251127171953_12_1.png" alt="Livox Mid70-2" width="45%" />
 </p>
 
 <p align="center">
@@ -390,7 +390,7 @@ Use rqt_reconfigure to adjust parameters in real time.
 - Statistics overlay
 
 <p align="center">
-  <img src="Doc/VisualizationGUI.png" alt="Visualization GUI" width="85%"/>
+  <img src="docs/VisualizationGUI.png" alt="Visualization GUI" width="85%"/>
 </p>
 <p align="center">
   <em>Figure 6: Visualization GUI</em>

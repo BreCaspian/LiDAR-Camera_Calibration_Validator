@@ -3,6 +3,17 @@
 All notable changes to the LiDAR-Camera Calibration Validator project will be documented in this file.
 
 ---
+## [5.0.0] - 2026-03-07
+### Changed 🎉
+- [正式发布 ROS 2 版本](https://github.com/BreCaspian/LiDAR-Camera_Calibration_Validator-ROS2)，工程构建与运行链路已迁移至 `ament_cmake`、`rclcpp` 与 `ros2 launch`。
+- 参数管理从 ROS 1 `dynamic_reconfigure` 迁移为 ROS 2 原生参数机制。
+- 文档与启动脚本已同步更新至 ROS 2 使用方式。
+
+### Fixed
+- **融合图像 QoS 兼容性问题**：修复 `/validator/fused_image` 在不同订阅端（如 RViz2/自定义节点）出现 `RELIABILITY_QOS_POLICY` 不兼容告警导致无图像的问题。新增 `fused_image_qos_reliability`（`best_effort` / `reliable`）可配置项，并支持在启动参数与配置文件中切换。
+- **参数回调崩溃问题**：修复 `reset_to_defaults` 在参数回调内触发二次 `set_parameters` 导致节点异常退出的问题，改为延迟执行默认参数恢复。
+- **参数热更新可验证性**：参数设置后会逐项进行生效检查，并在终端输出一次 `Parameter applied` / `Parameter apply check failed` 结果，便于快速确认调参是否真正生效。
+
 ## [4.0.0] - 2025-11-27
 ### Added
 - **支持 Livox 系列激光雷达**：在此前版本无法适配非重复式激光雷达的基础上，新增对 Livox 混合固态式与非重复式雷达的完整支持。

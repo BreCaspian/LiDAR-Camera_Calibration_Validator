@@ -46,70 +46,9 @@
 
 ## 系统流程
 
-```mermaid
-%%{init: {"themeVariables": {
-    "fontSize": "18px",
-    "nodeSpacing": 28,
-    "rankSpacing": 35
-}}}%%
-
-graph TB
-    classDef input   fill:#4DB6AC,stroke:#00695C,stroke-width:2px,color:#fff,font-weight:bold
-    classDef config  fill:#64B5F6,stroke:#1E88E5,stroke-width:2px,color:#fff,font-weight:bold
-    classDef sync    fill:#BA68C8,stroke:#6A1B9A,stroke-width:2px,color:#fff,font-weight:bold
-    classDef process fill:#FFD54F,stroke:#F9A825,stroke-width:2px,color:#000,font-weight:bold
-    classDef metrics fill:#FF8A65,stroke:#D84315,stroke-width:2px,color:#fff,font-weight:bold
-    classDef output  fill:#90A4AE,stroke:#37474F,stroke-width:2px,color:#fff,font-weight:bold
-
-    subgraph 输入层
-        A["相机图像"]
-        B["LiDAR 点云"]
-    end
-    class A,B input
-
-    subgraph 配置层
-        C["标定参数"]
-        D["动态参数"]
-    end
-    class C,D config
-
-    subgraph 同步层
-        E["时间同步 ApproximateTime Latest"]
-    end
-    class E sync
-
-    subgraph 处理层
-        F["点云预处理"]
-        G["点云投影"]
-        H["可视化叠加"]
-    end
-    class F,G,H process
-
-    subgraph 指标层
-        I["质量指标"]
-        J["性能统计"]
-    end
-    class I,J metrics
-
-    subgraph 输出层
-        K["ROS 发布"]
-        L["ROS 发布"]
-        M["GUI 显示"]
-    end
-    class K,L,M output
-
-    A --> E
-    B --> E
-    C --> G
-    D --> G
-    E --> F --> G --> H
-    G --> I
-    H --> K
-    H --> M
-    I --> L
-    H --> J
-    J --> L
-```
+<p align="center">
+  <img src="docs/system-pipeline.png" alt="System Pipeline" width="100%"/>
+</p>
 
 ---
 

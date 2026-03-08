@@ -8,8 +8,17 @@
   <img src="https://img.shields.io/badge/Version-4.0.0-2F80ED" alt="Version 4.0.0"/>
 </p>
 
-面向 LiDAR-相机联合标定结果的可视化校验工具，基于 ROS 实时同步图像与点云，支持畸变校正投影、边缘重合度与归一化互信息评估，并输出融合图像与指标统计。如需英文版，请参考 [README_EN.md](README_EN.md)
+<p align="center">
+  <a href="https://github.com/BreCaspian/LiDAR-Camera_Calibration_Validator-ROS2">LiDAR-Camera Calibration Validator ROS 2</a> |
+  <a href="CHANGELOG.md">CHANGELOG</a> |
+  <a href="README_EN.md">English</a>
+</p>
 
+▸ 本工具用于 LiDAR-相机联合标定结果的快速可视化校验，基于 ROS 实时同步图像与点云数据，支持畸变校正投影、边缘重合度与归一化互信息评估，并输出融合图像及指标统计结果
+
+▸ 广泛支持各种混合固态式与非重复扫描雷达，并且不依赖于相机和激光雷达时间同步
+
+▸ **🎉 What's New:** [已全面支持 ROS 2 Humble - 2026-03-07](https://github.com/BreCaspian/LiDAR-Camera_Calibration_Validator-ROS2)
 ---
 
 ## 主要特性

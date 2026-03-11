@@ -416,7 +416,7 @@ LiDAR-Camera_Calibration_Validator/
 
 - [x] 支持 Livox 系列激光雷达
 - [x] 去除外部时间同步依赖
-- [ ] 支持 ROS2
+- [x] 支持 ROS2
 - [ ] 支持 ROS-Docker
 - [ ] 支持 ROS2-Docker
 
